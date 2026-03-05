@@ -3,21 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lista de Tareas</title>
+  <title>Lista de la Compra</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="container">
     <header>
-      <h1>Mis Tareas</h1>
-      <p class="subtitle" id="subtitle">0 tareas pendientes</p>
+      <h1>Lista de la Compra</h1>
+      <p class="subtitle" id="subtitle">0 productos pendientes</p>
     </header>
 
     <form class="task-form" id="taskForm">
       <input
         type="text"
         id="taskInput"
-        placeholder="Agregar nueva tarea..."
+        placeholder="Agregar producto..."
         autocomplete="off"
       >
       <button type="submit">Agregar</button>
@@ -26,7 +26,7 @@
     <ul class="task-list" id="taskList"></ul>
 
     <footer class="footer" id="footer" hidden>
-      <button class="clear-btn" id="clearCompleted">Eliminar completadas</button>
+      <button class="clear-btn" id="clearCompleted">Eliminar comprados</button>
     </footer>
   </div>
 

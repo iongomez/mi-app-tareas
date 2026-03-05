@@ -6,21 +6,16 @@ const footer = document.getElementById('footer');
 const clearBtn = document.getElementById('clearCompleted');
 
 const INITIAL_TASKS = [
-  'Instalar Claude Code: npm install -g @anthropic-ai/claude-code',
-  'Configurar la API key de Anthropic (claude config)',
-  'Leer la documentación oficial en docs.anthropic.com/claude-code',
-  'Aprender los comandos básicos: /help, /clear, /cost, /status',
-  'Entender los modos de permisos (auto-approve, ask, deny)',
-  'Practicar edición de archivos con Read, Edit y Write',
-  'Aprender a usar Bash para comandos del sistema',
-  'Crear un CLAUDE.md en un proyecto propio',
-  'Explorar los hooks de configuración en settings',
-  'Aprender el modo Plan con /plan antes de hacer cambios grandes',
-  'Usar Glob y Grep para buscar en el codebase',
-  'Probar el agente con tareas complejas de múltiples archivos',
-  'Aprender sobre memoria persistente en ~/.claude/projects/',
-  'Explorar los skills disponibles con /help',
-  'Hacer un proyecto real de principio a fin con Claude Code',
+  'Leche',
+  'Huevos',
+  'Pan',
+  'Tomates',
+  'Queso',
+  'Yogur',
+  'Manzanas',
+  'Pollo',
+  'Pasta',
+  'Aceite de oliva',
 ];
 
 let tasks = JSON.parse(localStorage.getItem('tasks') || 'null');
@@ -37,8 +32,8 @@ function save() {
 function updateSubtitle() {
   const pending = tasks.filter(t => !t.completed).length;
   subtitle.textContent = pending === 1
-    ? '1 tarea pendiente'
-    : `${pending} tareas pendientes`;
+    ? '1 producto pendiente'
+    : `${pending} productos pendientes`;
 
   const hasCompleted = tasks.some(t => t.completed);
   footer.hidden = !hasCompleted;
@@ -70,7 +65,7 @@ function createTaskElement(task) {
 
   const deleteBtn = document.createElement('button');
   deleteBtn.className = 'delete-btn';
-  deleteBtn.setAttribute('aria-label', 'Eliminar tarea');
+  deleteBtn.setAttribute('aria-label', 'Eliminar producto');
   deleteBtn.innerHTML = '&#x2715;';
 
   // Toggle completed
@@ -131,7 +126,7 @@ function render() {
   if (tasks.length === 0) {
     const empty = document.createElement('li');
     empty.className = 'empty-state';
-    empty.textContent = 'No hay tareas. ¡Agrega una!';
+    empty.textContent = 'La lista está vacía. ¡Agrega productos!';
     taskList.appendChild(empty);
   } else {
     tasks.forEach(task => taskList.appendChild(createTaskElement(task)));
