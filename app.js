@@ -32,8 +32,8 @@ function save() {
 function updateSubtitle() {
   const pending = tasks.filter(t => !t.completed).length;
   subtitle.textContent = pending === 1
-    ? '1 producto pendiente'
-    : `${pending} productos pendientes`;
+    ? '1 tarea pendiente'
+    : `${pending} tareas pendientes`;
 
   const hasCompleted = tasks.some(t => t.completed);
   footer.hidden = !hasCompleted;
