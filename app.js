@@ -1,9 +1,10 @@
+// DOM references
 const taskForm = document.getElementById('taskForm');
 const taskInput = document.getElementById('taskInput');
 const taskList = document.getElementById('taskList');
 const subtitle = document.getElementById('subtitle');
-const footer = document.getElementById('footer');
-const clearBtn = document.getElementById('clearCompleted');
+const taskCountBadge = document.getElementById('taskCountBadge');
+const btnNewTask = document.getElementById('btnNewTask');
 
 const INITIAL_TASKS = [
   'Leche',
@@ -34,11 +35,86 @@ function updateSubtitle() {
   subtitle.textContent = pending === 1
     ? '1 tarea pendiente'
     : `${pending} tareas pendientes`;
-
-  const hasCompleted = tasks.some(t => t.completed);
-  footer.hidden = !hasCompleted;
+  taskCountBadge.textContent = `(${tasks.length})`;
 }
 
+// ===== CALENDAR =====
+let calDate = new Date();
+
+function renderCalendar() {
+  const calTitle = document.getElementById('calTitle');
+  const calEl = document.getElementById('calendar');
+
+  const year = calDate.getFullYear();
+  const month = calDate.getMonth();
+
+  const monthNames = [
+    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
+  ];
+
+  calTitle.textContent = `${monthNames[month]} ${year}`;
+
+  const firstDay = new Date(year, month, 1).getDay();
+  // Monday-first: 0=Mon…6=Sun
+  const startOffset = firstDay === 0 ? 6 : firstDay - 1;
+
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+  const today = new Date();
+  const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
+  const todayDate = today.getDate();
+
+  const dayNames = ['Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa', 'Do'];
+
+  let html = `<div class="cal-row cal-header">${
+    dayNames.map(d => `<span class="cal-cell">${d}</span>`).join('')
+  }</div>`;
+
+  const totalCells = Math.ceil((startOffset + daysInMonth) / 7) * 7;
+  let nextMonthDay = 1;
+
+  for (let cell = 0; cell < totalCells; cell++) {
+    if (cell % 7 === 0) html += '<div class="cal-row cal-week">';
+
+    if (cell < startOffset) {
+      const prevDay = daysInPrevMonth - startOffset + cell + 1;
+      html += `<span class="cal-cell cal-prev-month">${prevDay}</span>`;
+    } else {
+      const dayNum = cell - startOffset + 1;
+      if (dayNum <= daysInMonth) {
+        const isToday = isCurrentMonth && dayNum === todayDate;
+        html += `<span class="cal-cell${isToday ? ' cal-today' : ''}">${dayNum}</span>`;
+      } else {
+        html += `<span class="cal-cell cal-next-month">${nextMonthDay}</span>`;
+        nextMonthDay++;
+      }
+    }
+
+    if (cell % 7 === 6) html += '</div>';
+  }
+
+  calEl.innerHTML = html;
+}
+
+document.getElementById('calPrev').addEventListener('click', () => {
+  calDate.setMonth(calDate.getMonth() - 1);
+  renderCalendar();
+});
+
+document.getElementById('calNext').addEventListener('click', () => {
+  calDate.setMonth(calDate.getMonth() + 1);
+  renderCalendar();
+});
+
+// "+ Nueva tarea" focuses the input
+btnNewTask.addEventListener('click', () => {
+  taskInput.focus();
+  taskInput.scrollIntoView({ behavior: 'smooth' });
+});
+
+// ===== TASKS =====
 let dragSrcId = null;
 let placeholder = null;
 
@@ -65,10 +141,9 @@ function createTaskElement(task) {
 
   const deleteBtn = document.createElement('button');
   deleteBtn.className = 'delete-btn';
-  deleteBtn.setAttribute('aria-label', 'Eliminar producto');
+  deleteBtn.setAttribute('aria-label', 'Eliminar tarea');
   deleteBtn.innerHTML = '&#x2715;';
 
-  // Toggle completed
   function toggle() {
     task.completed = !task.completed;
     li.classList.toggle('completed', task.completed);
@@ -79,9 +154,10 @@ function createTaskElement(task) {
 
   check.addEventListener('click', toggle);
   text.addEventListener('click', toggle);
-  check.addEventListener('keydown', e => { if (e.key === ' ' || e.key === 'Enter') toggle(); });
+  check.addEventListener('keydown', e => {
+    if (e.key === ' ' || e.key === 'Enter') toggle();
+  });
 
-  // Delete
   deleteBtn.addEventListener('click', () => {
     li.style.opacity = '0';
     li.style.transform = 'translateX(16px)';
@@ -98,16 +174,16 @@ function createTaskElement(task) {
     dragSrcId = task.id;
     e.dataTransfer.effectAllowed = 'move';
 
-    // Clon elevado como imagen del drag
     const clone = li.cloneNode(true);
     clone.style.cssText = `
       width: ${li.offsetWidth}px;
-      transform: scale(1.03) rotate(1.5deg);
-      box-shadow: 0 12px 32px rgba(0,0,0,0.13);
-      border-radius: 12px;
+      transform: scale(1.02);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.10);
+      border-radius: 8px;
       position: absolute;
       top: -9999px;
       background: #fff;
+      padding: 10px 0;
     `;
     document.body.appendChild(clone);
     e.dataTransfer.setDragImage(clone, e.offsetX, e.offsetY);
@@ -136,16 +212,7 @@ function createTaskElement(task) {
 
 function render() {
   taskList.innerHTML = '';
-
-  if (tasks.length === 0) {
-    const empty = document.createElement('li');
-    empty.className = 'empty-state';
-    empty.textContent = 'La lista está vacía. ¡Agrega productos!';
-    taskList.appendChild(empty);
-  } else {
-    tasks.forEach(task => taskList.appendChild(createTaskElement(task)));
-  }
-
+  tasks.forEach(task => taskList.appendChild(createTaskElement(task)));
   updateSubtitle();
 }
 
@@ -165,7 +232,6 @@ taskList.addEventListener('dragover', e => {
   e.preventDefault();
   if (!placeholder) return;
 
-  const draggingEl = taskList.querySelector('.dragging');
   const siblings = [...taskList.querySelectorAll('.task-item:not(.dragging)')];
   const mouseY = e.clientY;
 
@@ -191,17 +257,12 @@ taskList.addEventListener('drop', e => {
   placeholder.remove();
   placeholder = null;
 
-  // Sync tasks array to the new DOM order
   tasks = [...taskList.querySelectorAll('.task-item')]
     .map(el => tasks.find(t => String(t.id) === el.dataset.id));
 
   save();
 });
 
-clearBtn.addEventListener('click', () => {
-  tasks = tasks.filter(t => !t.completed);
-  save();
-  render();
-});
-
+// Init
+renderCalendar();
 render();
