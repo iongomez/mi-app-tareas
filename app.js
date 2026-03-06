@@ -98,13 +98,28 @@ function createTaskElement(task) {
     dragSrcId = task.id;
     e.dataTransfer.effectAllowed = 'move';
 
+    // Clon elevado como imagen del drag
+    const clone = li.cloneNode(true);
+    clone.style.cssText = `
+      width: ${li.offsetWidth}px;
+      transform: scale(1.03) rotate(1.5deg);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.13);
+      border-radius: 12px;
+      position: absolute;
+      top: -9999px;
+      background: #fff;
+    `;
+    document.body.appendChild(clone);
+    e.dataTransfer.setDragImage(clone, e.offsetX, e.offsetY);
+    setTimeout(() => document.body.removeChild(clone), 0);
+
     placeholder = document.createElement('li');
     placeholder.className = 'task-placeholder';
 
     setTimeout(() => {
       placeholder.style.height = li.offsetHeight + 'px';
-      li.classList.add('dragging');
       li.after(placeholder);
+      li.classList.add('dragging');
     }, 0);
   });
 
@@ -113,7 +128,6 @@ function createTaskElement(task) {
     if (placeholder && placeholder.parentNode) placeholder.remove();
     placeholder = null;
     dragSrcId = null;
-    render();
   });
 
   li.append(handle, check, text, deleteBtn);
@@ -172,21 +186,16 @@ taskList.addEventListener('drop', e => {
   e.preventDefault();
   if (!placeholder || dragSrcId === null) return;
 
-  let insertIndex = 0;
-  for (const node of taskList.children) {
-    if (node === placeholder) break;
-    if (node.classList.contains('task-item') && !node.classList.contains('dragging')) insertIndex++;
-  }
-
-  const fromIndex = tasks.findIndex(t => t.id === dragSrcId);
-  const [removed] = tasks.splice(fromIndex, 1);
-  tasks.splice(insertIndex, 0, removed);
-
+  const draggingEl = taskList.querySelector('.dragging');
+  taskList.insertBefore(draggingEl, placeholder);
   placeholder.remove();
   placeholder = null;
 
+  // Sync tasks array to the new DOM order
+  tasks = [...taskList.querySelectorAll('.task-item')]
+    .map(el => tasks.find(t => String(t.id) === el.dataset.id));
+
   save();
-  render();
 });
 
 clearBtn.addEventListener('click', () => {
