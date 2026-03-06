@@ -3,31 +3,176 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lista de Tareas</title>
+  <title>Organizo</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>Lista de tareas</h1>
-      <p class="subtitle" id="subtitle">0 tareas pendientes</p>
-    </header>
+  <div class="app">
 
-    <form class="task-form" id="taskForm">
-      <input
-        type="text"
-        id="taskInput"
-        placeholder="Agregar nueva tarea..."
-        autocomplete="off"
-      >
-      <button type="submit">Agregar</button>
-    </form>
+    <!-- ═══════════ SIDEBAR ═══════════ -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <div class="logo-avatar">AZ</div>
+          <span class="logo-name">Organizo</span>
+        </div>
+      </div>
 
-    <ul class="task-list" id="taskList"></ul>
+      <nav class="sidebar-nav">
+        <a href="#" class="nav-item active">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+            <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+            <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+            <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+          </svg>
+          <span>Dashboard</span>
+        </a>
+        <a href="#" class="nav-item">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9"/>
+            <path d="M9 12l2 2 4-4"/>
+          </svg>
+          <span>Mis tareas</span>
+        </a>
+        <a href="#" class="nav-item">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+          <span>Notificaciones</span>
+        </a>
+      </nav>
 
-    <footer class="footer" id="footer" hidden>
-      <button class="clear-btn" id="clearCompleted">Eliminar completadas</button>
-    </footer>
+      <div class="sidebar-bottom">
+        <a href="#" class="nav-item">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+          <span>Configuración</span>
+        </a>
+        <a href="#" class="nav-item">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+            <polyline points="16 17 21 12 16 7"/>
+            <line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+          <span>Cerrar sesión</span>
+        </a>
+      </div>
+    </aside>
+
+    <!-- ═══════════ MAIN ═══════════ -->
+    <div class="main">
+
+      <!-- Topbar -->
+      <header class="topbar">
+        <div class="search-wrapper">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input type="text" class="search-input" placeholder="Buscar...">
+        </div>
+        <div class="topbar-actions">
+          <button class="btn-new-task" id="btnNewTask">+ Nueva tarea</button>
+          <button class="icon-btn" aria-label="Mensajes">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+              <polyline points="22,6 12,13 2,6"/>
+            </svg>
+          </button>
+          <div class="user-avatar">IZ</div>
+        </div>
+      </header>
+
+      <!-- Dashboard grid -->
+      <div class="dashboard">
+
+        <!-- Calendar -->
+        <div class="widget widget-calendar">
+          <div class="widget-header">
+            <h3 class="widget-title" id="calendarTitle"></h3>
+            <div class="cal-nav">
+              <button class="cal-nav-btn" id="calPrev">&#8249;</button>
+              <button class="cal-nav-btn" id="calNext">&#8250;</button>
+            </div>
+          </div>
+          <div id="calendar"></div>
+        </div>
+
+        <!-- My tasks -->
+        <div class="widget widget-tasks">
+          <div class="widget-header">
+            <h3 class="widget-title">
+              Mis tareas
+              <span class="count-badge" id="taskCountBadge"></span>
+            </h3>
+            <button class="dots-btn" aria-label="Más opciones">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <circle cx="5" cy="12" r="1.5"/>
+                <circle cx="12" cy="12" r="1.5"/>
+                <circle cx="19" cy="12" r="1.5"/>
+              </svg>
+            </button>
+          </div>
+          <p class="widget-meta" id="subtitle"></p>
+          <ul class="task-list" id="taskList"></ul>
+          <div class="footer-bar" id="footer" hidden>
+            <button class="clear-btn" id="clearCompleted">Eliminar completadas</button>
+          </div>
+          <form class="inline-task-form" id="taskForm">
+            <input type="text" id="taskInput" placeholder="+ Agregar nueva tarea..." autocomplete="off">
+          </form>
+        </div>
+
+        <!-- Categories -->
+        <div class="widget widget-categories">
+          <div class="widget-header">
+            <h3 class="widget-title">Mis categorías</h3>
+            <button class="dots-btn" aria-label="Más opciones">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <circle cx="5" cy="12" r="1.5"/>
+                <circle cx="12" cy="12" r="1.5"/>
+                <circle cx="19" cy="12" r="1.5"/>
+              </svg>
+            </button>
+          </div>
+          <div class="empty-widget">
+            <span class="empty-widget-icon">📂</span>
+            <p class="empty-widget-title">Sin categorías aún</p>
+            <p class="empty-widget-hint">Próximamente podrás organizar tus tareas en categorías</p>
+          </div>
+        </div>
+
+        <!-- Tracking -->
+        <div class="widget widget-tracking">
+          <div class="widget-header">
+            <h3 class="widget-title">Mi seguimiento</h3>
+          </div>
+          <div class="empty-widget">
+            <span class="empty-widget-icon">⏱️</span>
+            <p class="empty-widget-title">Sin registros de tiempo</p>
+            <p class="empty-widget-hint">Próximamente podrás rastrear el tiempo de cada tarea</p>
+          </div>
+        </div>
+
+        <!-- Comments panel -->
+        <div class="widget panel-comments">
+          <div class="widget-header">
+            <h3 class="widget-title">Nuevos comentarios</h3>
+          </div>
+          <div class="empty-widget">
+            <span class="empty-widget-icon">💬</span>
+            <p class="empty-widget-title">Sin comentarios</p>
+            <p class="empty-widget-hint">Los comentarios de tus tareas aparecerán aquí</p>
+          </div>
+          <button class="btn-add-widget">+ Añadir widget</button>
+        </div>
+
+      </div>
+    </div>
   </div>
 
   <script src="app.js"></script>

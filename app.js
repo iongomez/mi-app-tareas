@@ -1,9 +1,12 @@
+// ═══════════ TASK MANAGEMENT ═══════════
+
 const taskForm = document.getElementById('taskForm');
 const taskInput = document.getElementById('taskInput');
 const taskList = document.getElementById('taskList');
 const subtitle = document.getElementById('subtitle');
 const footer = document.getElementById('footer');
 const clearBtn = document.getElementById('clearCompleted');
+const taskCountBadge = document.getElementById('taskCountBadge');
 
 const INITIAL_TASKS = [
   'Leche',
@@ -31,9 +34,13 @@ function save() {
 
 function updateSubtitle() {
   const pending = tasks.filter(t => !t.completed).length;
+  const total = tasks.length;
+
   subtitle.textContent = pending === 1
     ? '1 tarea pendiente'
     : `${pending} tareas pendientes`;
+
+  taskCountBadge.textContent = `(${String(total).padStart(2, '0')})`;
 
   const hasCompleted = tasks.some(t => t.completed);
   footer.hidden = !hasCompleted;
@@ -65,10 +72,9 @@ function createTaskElement(task) {
 
   const deleteBtn = document.createElement('button');
   deleteBtn.className = 'delete-btn';
-  deleteBtn.setAttribute('aria-label', 'Eliminar producto');
+  deleteBtn.setAttribute('aria-label', 'Eliminar tarea');
   deleteBtn.innerHTML = '&#x2715;';
 
-  // Toggle completed
   function toggle() {
     task.completed = !task.completed;
     li.classList.toggle('completed', task.completed);
@@ -81,7 +87,6 @@ function createTaskElement(task) {
   text.addEventListener('click', toggle);
   check.addEventListener('keydown', e => { if (e.key === ' ' || e.key === 'Enter') toggle(); });
 
-  // Delete
   deleteBtn.addEventListener('click', () => {
     li.style.opacity = '0';
     li.style.transform = 'translateX(16px)';
@@ -98,7 +103,6 @@ function createTaskElement(task) {
     dragSrcId = task.id;
     e.dataTransfer.effectAllowed = 'move';
 
-    // Clon elevado como imagen del drag
     const clone = li.cloneNode(true);
     clone.style.cssText = `
       width: ${li.offsetWidth}px;
@@ -140,7 +144,7 @@ function render() {
   if (tasks.length === 0) {
     const empty = document.createElement('li');
     empty.className = 'empty-state';
-    empty.textContent = 'La lista está vacía. ¡Agrega productos!';
+    empty.textContent = '¡Sin tareas! Agrega una nueva tarea.';
     taskList.appendChild(empty);
   } else {
     tasks.forEach(task => taskList.appendChild(createTaskElement(task)));
@@ -165,7 +169,6 @@ taskList.addEventListener('dragover', e => {
   e.preventDefault();
   if (!placeholder) return;
 
-  const draggingEl = taskList.querySelector('.dragging');
   const siblings = [...taskList.querySelectorAll('.task-item:not(.dragging)')];
   const mouseY = e.clientY;
 
@@ -191,7 +194,6 @@ taskList.addEventListener('drop', e => {
   placeholder.remove();
   placeholder = null;
 
-  // Sync tasks array to the new DOM order
   tasks = [...taskList.querySelectorAll('.task-item')]
     .map(el => tasks.find(t => String(t.id) === el.dataset.id));
 
@@ -205,3 +207,106 @@ clearBtn.addEventListener('click', () => {
 });
 
 render();
+
+// ═══════════ CALENDAR ═══════════
+
+const MONTHS = [
+  'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+];
+const DAYS = ['Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa', 'Do'];
+
+let calYear, calMonth;
+
+(function initCalendar() {
+  const today = new Date();
+  calYear = today.getFullYear();
+  calMonth = today.getMonth();
+  renderCalendar();
+})();
+
+function renderCalendar() {
+  document.getElementById('calendarTitle').textContent = `${MONTHS[calMonth]} ${calYear}`;
+
+  const cal = document.getElementById('calendar');
+  cal.innerHTML = '';
+
+  // Day name headers
+  const headerRow = document.createElement('div');
+  headerRow.className = 'cal-row';
+  DAYS.forEach(d => {
+    const cell = document.createElement('span');
+    cell.className = 'cal-cell cal-day-name';
+    cell.textContent = d;
+    headerRow.appendChild(cell);
+  });
+  cal.appendChild(headerRow);
+
+  // Calculate layout
+  const firstDayOfWeek = new Date(calYear, calMonth, 1).getDay(); // 0=Sun
+  const startOffset = firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1; // shift to Mon=0
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+  const daysInPrevMonth = new Date(calYear, calMonth, 0).getDate();
+
+  const totalCells = startOffset + daysInMonth;
+  const rows = Math.ceil(totalCells / 7);
+
+  const today = new Date();
+  let dayIndex = 0;
+
+  for (let row = 0; row < rows; row++) {
+    const rowEl = document.createElement('div');
+    rowEl.className = 'cal-row';
+
+    for (let col = 0; col < 7; col++) {
+      const cell = document.createElement('span');
+      cell.className = 'cal-cell';
+
+      const i = row * 7 + col;
+
+      if (i < startOffset) {
+        // Previous month days
+        cell.textContent = daysInPrevMonth - startOffset + i + 1;
+        cell.classList.add('cal-other-month');
+      } else if (dayIndex < daysInMonth) {
+        dayIndex++;
+        cell.textContent = dayIndex;
+
+        if (
+          dayIndex === today.getDate() &&
+          calMonth === today.getMonth() &&
+          calYear === today.getFullYear()
+        ) {
+          cell.classList.add('cal-today');
+        }
+      } else {
+        // Next month days
+        const nextDay = i - startOffset - daysInMonth + 1;
+        cell.textContent = nextDay;
+        cell.classList.add('cal-other-month');
+      }
+
+      rowEl.appendChild(cell);
+    }
+
+    cal.appendChild(rowEl);
+  }
+}
+
+document.getElementById('calPrev').addEventListener('click', () => {
+  calMonth--;
+  if (calMonth < 0) { calMonth = 11; calYear--; }
+  renderCalendar();
+});
+
+document.getElementById('calNext').addEventListener('click', () => {
+  calMonth++;
+  if (calMonth > 11) { calMonth = 0; calYear++; }
+  renderCalendar();
+});
+
+// ═══════════ NUEVA TAREA BUTTON ═══════════
+
+document.getElementById('btnNewTask').addEventListener('click', () => {
+  taskInput.focus();
+});
