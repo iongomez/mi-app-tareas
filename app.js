@@ -5,6 +5,8 @@ const taskList = document.getElementById('taskList');
 const subtitle = document.getElementById('subtitle');
 const taskCountBadge = document.getElementById('taskCountBadge');
 const btnNewTask = document.getElementById('btnNewTask');
+const moreBtn = document.getElementById('moreBtn');
+const taskMenu = document.getElementById('taskMenu');
 
 const INITIAL_TASKS = [
   'Leche',
@@ -106,6 +108,46 @@ document.getElementById('calPrev').addEventListener('click', () => {
 document.getElementById('calNext').addEventListener('click', () => {
   calDate.setMonth(calDate.getMonth() + 1);
   renderCalendar();
+});
+
+// ===== TASK MENU POPOVER =====
+function openMenu() {
+  taskMenu.hidden = false;
+  moreBtn.setAttribute('aria-expanded', 'true');
+}
+
+function closeMenu() {
+  taskMenu.hidden = true;
+  moreBtn.setAttribute('aria-expanded', 'false');
+}
+
+moreBtn.addEventListener('click', e => {
+  e.stopPropagation();
+  taskMenu.hidden ? openMenu() : closeMenu();
+});
+
+document.addEventListener('click', () => closeMenu());
+
+taskMenu.addEventListener('click', e => e.stopPropagation());
+
+document.getElementById('menuAddTask').addEventListener('click', () => {
+  closeMenu();
+  taskInput.focus();
+  taskInput.scrollIntoView({ behavior: 'smooth' });
+});
+
+document.getElementById('menuClearCompleted').addEventListener('click', () => {
+  closeMenu();
+  tasks = tasks.filter(t => !t.completed);
+  save();
+  render();
+});
+
+document.getElementById('menuClearAll').addEventListener('click', () => {
+  closeMenu();
+  tasks = [];
+  save();
+  render();
 });
 
 // "+ Nueva tarea" focuses the input
