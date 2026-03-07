@@ -5,7 +5,7 @@ const taskList = document.getElementById('taskList');
 const subtitle = document.getElementById('subtitle');
 const taskCountBadge = document.getElementById('taskCountBadge');
 const widgetTitle = document.getElementById('widgetTitle');
-const btnNewTask = document.getElementById('btnNewTask');
+const taskAddBtn = document.getElementById('taskAddBtn');
 const moreBtn = document.getElementById('moreBtn');
 const taskMenu = document.getElementById('taskMenu');
 
@@ -329,9 +329,8 @@ document.getElementById('menuClearAll').addEventListener('click', () => {
   render();
 });
 
-btnNewTask.addEventListener('click', () => {
-  taskInput.focus();
-  taskInput.scrollIntoView({ behavior: 'smooth' });
+taskInput.addEventListener('input', () => {
+  taskAddBtn.disabled = taskInput.value.trim() === '';
 });
 
 // ===== DATE POPOVER =====
@@ -375,7 +374,7 @@ function openDatePopover(task, anchorEl) {
   const rect = anchorEl.getBoundingClientRect();
   popover.style.position = 'fixed';
   popover.style.top = `${rect.bottom + 4}px`;
-  popover.style.left = `${rect.left}px`;
+  popover.style.right = `${window.innerWidth - rect.right}px`;
   popover.style.zIndex = '200';
 
   document.body.appendChild(popover);
@@ -442,7 +441,7 @@ function createTaskElement(task) {
   const deleteBtn = document.createElement('button');
   deleteBtn.className = 'delete-btn';
   deleteBtn.setAttribute('aria-label', 'Eliminar tarea');
-  deleteBtn.innerHTML = '&#x2715;';
+  deleteBtn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>`;
 
   function toggle() {
     task.completed = !task.completed;
@@ -486,6 +485,7 @@ function createTaskElement(task) {
 
   text.addEventListener('click', e => {
     e.stopPropagation();
+    closeDatePopover();
     if (!task.completed) startEditing();
   });
 
@@ -510,6 +510,25 @@ function createTaskElement(task) {
       render();
     }, 180);
   });
+
+  // Sun button: assign to today (hidden if already today)
+  const todayStr = toISODate(new Date());
+  if (task.date !== todayStr) {
+    const todayBtn = document.createElement('button');
+    todayBtn.className = 'today-btn';
+    todayBtn.setAttribute('aria-label', 'Hacer hoy');
+    todayBtn.title = 'Hacer hoy';
+    todayBtn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.22" y1="4.22" x2="7.05" y2="7.05"/><line x1="16.95" y1="16.95" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.22" y1="19.78" x2="7.05" y2="16.95"/><line x1="16.95" y1="7.05" x2="19.78" y2="4.22"/></svg>`;
+    todayBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      closeDatePopover();
+      task.date = todayStr;
+      save();
+      render();
+      renderCalendar();
+    });
+    li.append(todayBtn);
+  }
 
   li.append(dateBtn, deleteBtn);
 
@@ -658,6 +677,7 @@ taskForm.addEventListener('submit', e => {
   render();
   renderCalendar();
   taskInput.value = '';
+  taskAddBtn.disabled = true;
   taskInput.focus();
 });
 

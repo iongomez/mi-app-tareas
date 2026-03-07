@@ -13,7 +13,6 @@
     <aside class="sidebar">
       <div class="sidebar-header">
         <div class="logo">
-          <div class="logo-avatar">FB</div>
           <span class="logo-name">Focus Block</span>
         </div>
       </div>
@@ -38,31 +37,15 @@
         </a>
       </nav>
       <div class="sidebar-bottom">
-        <a class="nav-item" href="#">
-          <span class="nav-icon">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>
-          </span>
-          Ajustes
-        </a>
+<div class="sidebar-user">
+          <div class="user-avatar">IG</div>
+          <span class="sidebar-user-name">Ion Gomez</span>
+        </div>
       </div>
     </aside>
 
     <!-- Main -->
     <div class="main">
-
-      <!-- Topbar -->
-      <div class="topbar">
-        <div class="search-wrapper">
-          <span class="search-icon">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8a8a8a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          </span>
-          <input type="text" class="search-input" placeholder="Buscar tareas...">
-        </div>
-        <div class="topbar-actions">
-          <button class="btn-new-task" id="btnNewTask">+ Nueva tarea</button>
-          <div class="user-avatar">IG</div>
-        </div>
-      </div>
 
       <!-- Dashboard Grid -->
       <div class="dashboard-grid">
@@ -111,6 +94,7 @@
                 placeholder="Agregar tarea..."
                 autocomplete="off"
               >
+              <button type="submit" class="task-add-btn" id="taskAddBtn" disabled>Agregar</button>
             </form>
           </div>
         </div>

@@ -2,6 +2,11 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  scrollbar-width: none;
+}
+
+*::-webkit-scrollbar {
+  display: none;
 }
 
 body {
@@ -119,6 +124,19 @@ body {
   gap: 2px;
 }
 
+.sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+}
+
+.sidebar-user-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: #8a8a8a;
+}
+
 /* ===== MAIN ===== */
 .main {
   flex: 1;
@@ -231,7 +249,7 @@ body {
   grid-template-columns: 1fr 1fr;
   grid-template-rows: auto 1fr;
   gap: 20px;
-  padding: 0 20px 20px;
+  padding: 20px 20px 20px;
   min-height: 0;
   overflow-y: auto;
 }
@@ -264,7 +282,13 @@ body {
   padding: 18px;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+}
+
+#upcomingList {
+  flex: 1;
   overflow-y: auto;
+  min-height: 0;
 }
 
 .widget-header {
@@ -439,10 +463,19 @@ body {
   color: #d0d0d0;
 }
 
+/* Halo pulsante para el día de hoy */
+@keyframes calTodayHalo {
+  0%   { box-shadow: 0 0 0 0 rgba(245, 196, 42, 0.50); }
+  70%  { box-shadow: 0 0 0 7px rgba(245, 196, 42, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(245, 196, 42, 0); }
+}
+
 .cal-cell.cal-today {
-  background: #f5c42a;
+  background: transparent;
+  border: 2px solid #f5c42a;
   font-weight: 700;
   color: #1a1a1a;
+  animation: calTodayHalo 2.2s ease-out infinite;
 }
 
 /* ===== MY TASKS ===== */
@@ -606,8 +639,14 @@ body {
   flex-shrink: 0;
 }
 
+.task-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .task-form input {
-  width: 100%;
+  flex: 1;
   border: none;
   outline: none;
   background: none;
@@ -624,6 +663,29 @@ body {
 
 .task-form input:focus {
   color: #1a1a1a;
+}
+
+.task-add-btn {
+  flex-shrink: 0;
+  padding: 5px 12px;
+  background: #f5c42a;
+  color: #1a1a1a;
+  border: none;
+  border-radius: 20px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.task-add-btn:disabled {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.task-add-btn:not(:disabled):hover {
+  opacity: 0.85;
 }
 
 /* ===== EVENTS WIDGET ===== */
@@ -685,18 +747,26 @@ body {
 }
 
 .cal-cell.cal-today.cal-has-tasks::after {
-  background: #1a1a1a;
+  background: #c49a00;
 }
 
-/* Selected day */
+/* Selected day (not today): yellow fill */
 .cal-cell.cal-selected {
-  background: #1a1a1a !important;
-  color: #fff !important;
+  background: #f5c42a !important;
+  color: #1a1a1a !important;
   font-weight: 700;
 }
 
+/* Today selected: yellow fill + darker border reinforced + halo */
+.cal-cell.cal-today.cal-selected {
+  background: #f5c42a !important;
+  border: 2.5px solid #c49a00 !important;
+  color: #1a1a1a !important;
+  animation: calTodayHalo 2.2s ease-out infinite;
+}
+
 .cal-cell.cal-selected.cal-has-tasks::after {
-  background: #f5c42a;
+  background: #1a1a1a;
 }
 
 /* Drop mode: when dragging a task, highlight calendar days */
@@ -740,14 +810,39 @@ body {
   transition: opacity 0.15s, background 0.15s, color 0.15s;
 }
 
-.task-item:hover .date-btn,
-.task-item.has-date .date-btn {
+.task-item:hover .date-btn {
   opacity: 1;
 }
 
 .date-btn:hover {
   background: #f8f7f4;
   color: #8a8a8a;
+}
+
+/* ===== TODAY BUTTON (sol — asignar a hoy) ===== */
+.today-btn {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-radius: 6px;
+  color: #c0c0c0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.15s, background 0.15s, color 0.15s;
+}
+
+.task-item:hover .today-btn {
+  opacity: 1;
+}
+
+.today-btn:hover {
+  background: #fff8e1;
+  color: #f5c42a;
 }
 
 /* ===== DATE POPOVER ===== */
@@ -808,6 +903,10 @@ body {
   border-bottom: 1px solid #ebebeb;
   margin-bottom: 2px;
   animation: none;
+  position: sticky;
+  top: 0;
+  background: #fff;
+  z-index: 5;
 }
 
 .task-date-group-header:first-child {
@@ -852,7 +951,7 @@ body {
 }
 
 .cal-cell.cal-selected.cal-overdue::after {
-  background: #ff8080;
+  background: #e03535;
 }
 
 /* ===== EMPTY STATE ===== */
@@ -878,6 +977,10 @@ body {
   padding-bottom: 5px;
   border-bottom: 1px solid #ebebeb;
   margin-bottom: 4px;
+  position: sticky;
+  top: 0;
+  background: #fff;
+  z-index: 5;
 }
 
 .upcoming-item {
