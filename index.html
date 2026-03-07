@@ -3,11 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Organizo</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+  <title>Focus Block</title>
   <link rel="stylesheet" href="style.css">
-  <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
 </head>
 <body>
   <div class="app">
@@ -16,136 +13,118 @@
     <aside class="sidebar">
       <div class="sidebar-header">
         <div class="logo">
-          <div class="logo-avatar">IG</div>
-          <span class="logo-name">Organizo</span>
+          <div class="logo-avatar">FB</div>
+          <span class="logo-name">Focus Block</span>
         </div>
       </div>
-
       <nav class="sidebar-nav">
-        <a href="#" class="nav-item active">
+        <a class="nav-item active" id="navInbox" href="#">
           <span class="nav-icon">
-            <svg width="17" height="17" viewBox="0 0 17 17" fill="none"><rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1.5" fill="currentColor"/><rect x="10" y="1.5" width="5.5" height="5.5" rx="1.5" fill="currentColor"/><rect x="1.5" y="10" width="5.5" height="5.5" rx="1.5" fill="currentColor"/><rect x="10" y="10" width="5.5" height="5.5" rx="1.5" fill="currentColor"/></svg>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/></svg>
           </span>
-          <span>Dashboard</span>
+          Inbox
         </a>
-        <a href="#" class="nav-item">
+        <a class="nav-item" id="navToday" href="#">
           <span class="nav-icon">
-            <svg width="17" height="17" viewBox="0 0 17 17" fill="none"><circle cx="8.5" cy="8.5" r="6.5" stroke="currentColor" stroke-width="1.5"/><path d="M5.5 8.5L7.5 10.5L11.5 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.22" y1="4.22" x2="7.05" y2="7.05"/><line x1="16.95" y1="16.95" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.22" y1="19.78" x2="7.05" y2="16.95"/><line x1="16.95" y1="7.05" x2="19.78" y2="4.22"/></svg>
           </span>
-          <span>Mis tareas</span>
+          Hoy
         </a>
-        <a href="#" class="nav-item">
+        <a class="nav-item" id="navPlanned" href="#">
           <span class="nav-icon">
-            <svg width="17" height="17" viewBox="0 0 17 17" fill="none"><path d="M8.5 2.5C6.3 2.5 4.5 4.3 4.5 6.5V10.5L3 12H14L12.5 10.5V6.5C12.5 4.3 10.7 2.5 8.5 2.5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M7 12.5C7 13.33 7.67 14 8.5 14C9.33 14 10 13.33 10 12.5" stroke="currentColor" stroke-width="1.5"/></svg>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
           </span>
-          <span>Notificaciones</span>
+          Planificadas
         </a>
       </nav>
-
       <div class="sidebar-bottom">
-        <a href="#" class="nav-item">
+        <a class="nav-item" href="#">
           <span class="nav-icon">
-            <svg width="17" height="17" viewBox="0 0 17 17" fill="none"><circle cx="8.5" cy="8.5" r="2" stroke="currentColor" stroke-width="1.4"/><path d="M8.5 1.5v1.5M8.5 14v1.5M1.5 8.5H3M14 8.5h1.5M3.4 3.4l1.06 1.06M12.54 12.54l1.06 1.06M3.4 13.6l1.06-1.06M12.54 4.46l1.06-1.06" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>
           </span>
-          <span>Configuración</span>
-        </a>
-        <a href="#" class="nav-item">
-          <span class="nav-icon">
-            <svg width="17" height="17" viewBox="0 0 17 17" fill="none"><path d="M6 3H3.5C2.95 3 2.5 3.45 2.5 4V13C2.5 13.55 2.95 14 3.5 14H6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M11 5.5L14.5 8.5L11 11.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 8.5H14.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-          </span>
-          <span>Cerrar sesión</span>
+          Ajustes
         </a>
       </div>
     </aside>
 
     <!-- Main -->
-    <main class="main">
+    <div class="main">
+
+      <!-- Topbar -->
       <div class="topbar">
         <div class="search-wrapper">
           <span class="search-icon">
-            <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><circle cx="6.5" cy="6.5" r="5" stroke="#8A8A8A" stroke-width="1.5"/><path d="M10.5 10.5L13.5 13.5" stroke="#8A8A8A" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8a8a8a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           </span>
-          <input type="text" class="search-input" placeholder="Buscar...">
+          <input type="text" class="search-input" placeholder="Buscar tareas...">
         </div>
         <div class="topbar-actions">
-          <button id="btnNewTask" class="btn-new-task">+ Nueva tarea</button>
-          <div class="topbar-icon-btn">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1.5" y="3.5" width="13" height="9" rx="1.5" stroke="#1A1A1A" stroke-width="1.4"/><path d="M1.5 5.5L8 9L14.5 5.5" stroke="#1A1A1A" stroke-width="1.4"/></svg>
-          </div>
+          <button class="btn-new-task" id="btnNewTask">+ Nueva tarea</button>
           <div class="user-avatar">IG</div>
         </div>
       </div>
 
+      <!-- Dashboard Grid -->
       <div class="dashboard-grid">
 
-        <!-- Calendar -->
+        <!-- Calendar Widget -->
         <div class="widget widget-calendar">
           <div class="widget-header">
-            <span id="calTitle" class="widget-title-text">Marzo 2026</span>
+            <span class="widget-title-text" id="calTitle">Marzo 2026</span>
             <div class="cal-nav">
-              <button id="calPrev" class="cal-btn">&#8249;</button>
-              <button id="calNext" class="cal-btn">&#8250;</button>
+              <button class="cal-btn" id="calPrev">&#8249;</button>
+              <button class="cal-btn" id="calNext">&#8250;</button>
             </div>
           </div>
-          <div id="calendar" class="calendar"></div>
+          <div class="calendar" id="calendar"></div>
         </div>
 
-        <!-- My Tasks -->
+        <!-- Tasks Widget -->
         <div class="widget widget-tasks">
           <div class="widget-header">
             <div class="widget-title-group">
-              <h3 class="widget-title-text">Mis tareas</h3>
-              <span id="taskCountBadge" class="task-count-badge">(0)</span>
+              <span class="widget-title-text" id="widgetTitle">Inbox</span>
+              <span class="task-count-badge" id="taskCountBadge">(0)</span>
             </div>
             <div class="more-wrapper">
-              <button id="moreBtn" class="icon-btn more-btn" aria-label="Más opciones" aria-expanded="false">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="3" cy="8" r="1.5" fill="#8A8A8A"/><circle cx="8" cy="8" r="1.5" fill="#8A8A8A"/><circle cx="13" cy="8" r="1.5" fill="#8A8A8A"/></svg>
+              <button class="icon-btn" id="moreBtn" aria-label="Más opciones" aria-expanded="false">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
               </button>
-              <div id="taskMenu" class="task-menu" hidden>
+              <div class="task-menu" id="taskMenu" hidden>
                 <button class="task-menu-item" id="menuAddTask">
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1.5V12.5M1.5 7H12.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-                  Agregar nueva tarea
-                </button>
-                <button class="task-menu-item" id="menuClearCompleted">
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.3"/><path d="M4.5 7L6.5 9L9.5 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                  Borrar completadas
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  Agregar tarea
                 </button>
                 <div class="task-menu-divider"></div>
-                <button class="task-menu-item task-menu-item--danger" id="menuClearAll">
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 3.5H12M5 3.5V2.5C5 2.22 5.22 2 5.5 2H8.5C8.78 2 9 2.22 9 2.5V3.5M5.5 6V10.5M8.5 6V10.5M3.5 3.5L4 11.5C4 11.78 4.22 12 4.5 12H9.5C9.78 12 10 11.78 10 11.5L10.5 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                  Borrar todas
-                </button>
+                <button class="task-menu-item task-menu-item--danger" id="menuClearCompleted">Eliminar completadas</button>
+                <button class="task-menu-item task-menu-item--danger" id="menuClearAll">Limpiar todo</button>
               </div>
             </div>
           </div>
-          <p id="subtitle" class="tasks-subtitle">0 tareas pendientes</p>
-          <ul id="taskList" class="task-list"></ul>
+          <p class="tasks-subtitle" id="subtitle">0 tareas pendientes</p>
+          <ul class="task-list" id="taskList"></ul>
           <div class="task-form-wrapper">
-            <form id="taskForm" class="task-form">
+            <form class="task-form" id="taskForm">
               <input
                 type="text"
                 id="taskInput"
-                placeholder="+ Agregar nueva tarea..."
+                placeholder="Agregar tarea..."
                 autocomplete="off"
               >
             </form>
           </div>
         </div>
 
-        <!-- Proximos eventos -->
+        <!-- Events Widget -->
         <div class="widget widget-events">
           <div class="widget-header">
-            <h3 class="widget-title-text">Próximos eventos</h3>
+            <span class="widget-title-text">Planificadas</span>
           </div>
-          <div class="empty-widget">
-            <span class="empty-widget-icon">&#128197;</span>
-            <strong class="empty-widget-title">Sin eventos próximos</strong>
-            <span class="empty-widget-desc">Próximamente podrás ver tus<br>eventos aquí</span>
-          </div>
+          <div id="upcomingList"></div>
         </div>
 
       </div>
-    </main>
+    </div>
   </div>
 
   <script src="app.js"></script>
