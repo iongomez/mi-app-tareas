@@ -84,16 +84,9 @@ function closeSignOutPopover() {
 document.addEventListener('click', closeSignOutPopover);
 
 // ===== INIT =====
+// Rely solely on onAuthStateChange — in Supabase v2 it fires INITIAL_SESSION
+// on load, which correctly processes OAuth callback tokens from the URL hash.
 supabaseClient.auth.onAuthStateChange((_event, session) => {
-  if (session?.user) {
-    hideLoginScreen();
-    updateUserUI(session.user);
-  } else {
-    showLoginScreen();
-  }
-});
-
-supabaseClient.auth.getSession().then(({ data: { session } }) => {
   if (session?.user) {
     hideLoginScreen();
     updateUserUI(session.user);
