@@ -613,6 +613,9 @@ function render() {
   const visible = getVisibleTasks();
 
   if (visible.length === 0) {
+    // Add row va primero, en la misma posición que aparecería la primera tarea
+    taskList.appendChild(createAddRow());
+
     const empty = document.createElement('li');
     empty.className = 'empty-state';
 
@@ -659,6 +662,7 @@ function render() {
       taskList.appendChild(header);
       groupTasks.forEach(task => taskList.appendChild(createTaskElement(task)));
     });
+    taskList.appendChild(createAddRow());
 
   } else if (currentView === 'day' && selectedDate === toISODate(new Date())) {
     const todayStr = toISODate(new Date());
@@ -682,12 +686,13 @@ function render() {
     }
 
     todayTasks.forEach(task => taskList.appendChild(createTaskElement(task)));
+    taskList.appendChild(createAddRow());
 
   } else {
     visible.forEach(task => taskList.appendChild(createTaskElement(task)));
+    taskList.appendChild(createAddRow());
   }
 
-  taskList.appendChild(createAddRow());
   updateSubtitle();
   renderUpcoming();
 }

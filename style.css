@@ -669,12 +669,16 @@ body {
 }
 
 .task-add-input::placeholder {
-  color: #bbb;
+  color: #888;
 }
 
 .task-add-input:focus {
   color: #1a1a1a;
   cursor: text;
+}
+
+.task-add-input:focus::placeholder {
+  color: #bbb;
 }
 
 .task-add-btn {
@@ -978,7 +982,7 @@ body {
   align-items: center;
   gap: 6px;
   text-align: center;
-  padding: 40px 24px 24px;
+  padding: 24px 24px 24px;
   list-style: none;
 }
 
