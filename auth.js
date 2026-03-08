@@ -83,6 +83,11 @@ function closeSignOutPopover() {
   }
 }
 
+document.getElementById('sidebarUserSection').addEventListener('click', e => {
+  e.stopPropagation();
+  openSignOutPopover();
+});
+
 document.addEventListener('click', closeSignOutPopover);
 
 // ===== INIT =====
