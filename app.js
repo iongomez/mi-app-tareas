@@ -634,7 +634,11 @@ function render() {
       <div class="empty-state-icon"><img src="img/Empty-state.png" alt="" width="72" height="72"></div>
       <div class="empty-state-title">${title}</div>
       <div class="empty-state-desc">${desc}</div>
+      <button class="empty-state-cta">+ Añadir tarea</button>
     `;
+    empty.querySelector('.empty-state-cta').addEventListener('click', () => {
+      taskInput.focus();
+    });
     taskList.appendChild(empty);
   } else if (currentView === 'planned') {
     const todayStr = toISODate(new Date());

@@ -660,7 +660,7 @@ body {
 }
 
 .task-form input::placeholder {
-  color: #8a8a8a;
+  color: #bbb;
 }
 
 .task-form input:focus {
@@ -985,6 +985,24 @@ body {
   color: #ccc;
   max-width: 200px;
   line-height: 1.5;
+}
+
+.empty-state-cta {
+  margin-top: 18px;
+  padding: 8px 22px;
+  background: #f5c42a;
+  color: #1a1a1a;
+  border: none;
+  border-radius: 20px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.empty-state-cta:hover {
+  opacity: 0.82;
 }
 
 /* ===== UPCOMING TASKS WIDGET ===== */
