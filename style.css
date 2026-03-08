@@ -634,7 +634,7 @@ body {
   display: none;
 }
 
-/* ===== ADD TASK ROW (inline, dentro de la task list) ===== */
+/* ===== ADD TASK ROW (inline en la task list) ===== */
 .task-add-row {
   display: flex;
   align-items: center;
@@ -652,13 +652,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #ccc;
+  color: #f5c42a;
   transition: color 0.15s;
-}
-
-.task-add-row:hover .task-add-icon,
-.task-add-row.active .task-add-icon {
-  color: #e03535;
 }
 
 .task-add-input {
@@ -978,14 +973,12 @@ body {
 
 /* ===== EMPTY STATE ===== */
 .empty-state {
-  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   gap: 6px;
   text-align: center;
-  padding: 32px 24px;
+  padding: 40px 24px 24px;
   list-style: none;
 }
 

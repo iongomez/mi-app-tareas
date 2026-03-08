@@ -357,7 +357,6 @@ document.getElementById('menuClearAll').addEventListener('click', () => {
   render();
 });
 
-
 // ===== DATE POPOVER =====
 let activeDatePopover = null;
 
@@ -628,12 +627,7 @@ function render() {
       <div class="empty-state-icon"><img src="img/Empty-state.png" alt="" width="72" height="72"></div>
       <div class="empty-state-title">${title}</div>
       <div class="empty-state-desc">${desc}</div>
-      <button class="empty-state-cta">+ Añadir tarea</button>
     `;
-    empty.querySelector('.empty-state-cta').addEventListener('click', () => {
-      const addInput = taskList.querySelector('.task-add-input');
-      if (addInput) addInput.focus();
-    });
     taskList.appendChild(empty);
   } else if (currentView === 'planned') {
     const todayStr = toISODate(new Date());
@@ -736,7 +730,6 @@ function createAddRow() {
     if (!input.value.trim()) li.classList.remove('active');
   });
 
-  // Prevent blur when clicking the button
   btn.addEventListener('mousedown', e => e.preventDefault());
 
   async function submitTask() {
@@ -749,7 +742,6 @@ function createAddRow() {
     tasks.push({ id: created.id, text: created.text, completed: created.completed, date: created.date });
     render();
     renderCalendar();
-    // Re-focus for continuous adding
     requestAnimationFrame(() => {
       const newInput = taskList.querySelector('.task-add-input');
       if (newInput) newInput.focus();
