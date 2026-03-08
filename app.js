@@ -623,21 +623,15 @@ function render() {
     const empty = document.createElement('li');
     empty.className = 'empty-state';
 
-    const icons = {
-      inbox: `<svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="7 13 10 16 17 9"/></svg>`,
-      planned: `<svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
-      day: `<svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.22" y1="4.22" x2="7.05" y2="7.05"/><line x1="16.95" y1="16.95" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.22" y1="19.78" x2="7.05" y2="16.95"/><line x1="16.95" y1="7.05" x2="19.78" y2="4.22"/></svg>`,
-    };
-
     const content = {
-      inbox:   { icon: icons.inbox,   title: 'Inbox vacío',           desc: 'Añade tu primera tarea con el campo de abajo' },
-      planned: { icon: icons.planned, title: 'Sin tareas planificadas', desc: 'Arrastra tareas al calendario para organizarlas' },
-      day:     { icon: icons.day,     title: 'Día despejado',          desc: 'No hay tareas para este día' },
+      inbox:   { title: 'Inbox vacío',            desc: 'Añade tu primera tarea con el campo de abajo' },
+      planned: { title: 'Sin tareas planificadas', desc: 'Arrastra tareas al calendario para organizarlas' },
+      day:     { title: 'Día despejado',           desc: 'No hay tareas para este día' },
     };
 
-    const { icon, title, desc } = content[currentView] || content.day;
+    const { title, desc } = content[currentView] || content.day;
     empty.innerHTML = `
-      <div class="empty-state-icon">${icon}</div>
+      <div class="empty-state-icon"><img src="img/Empty-state.png" alt="" width="72" height="72"></div>
       <div class="empty-state-title">${title}</div>
       <div class="empty-state-desc">${desc}</div>
     `;

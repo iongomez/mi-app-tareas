@@ -970,8 +970,8 @@ body {
 }
 
 .empty-state-icon {
-  color: #ddd;
   margin-bottom: 6px;
+  opacity: 0.55;
 }
 
 .empty-state-title {
