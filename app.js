@@ -312,6 +312,19 @@ document.getElementById('calNext').addEventListener('click', () => {
   renderCalendar();
 });
 
+// Transformación del ghost al entrar/salir de la zona del calendario
+const calendarWidget = document.getElementById('calendar');
+calendarWidget.addEventListener('dragenter', () => {
+  if (dragSrcId === null || !dragGhost) return;
+  dragGhost.classList.add('drag-ghost--cal');
+});
+calendarWidget.addEventListener('dragleave', e => {
+  if (!dragGhost) return;
+  if (!calendarWidget.contains(e.relatedTarget)) {
+    dragGhost.classList.remove('drag-ghost--cal');
+  }
+});
+
 // ===== TASK MENU POPOVER =====
 function openMenu() {
   taskMenu.hidden = false;
@@ -416,6 +429,9 @@ function closeDatePopover() {
 // ===== TASKS =====
 let dragSrcId = null;
 let placeholder = null;
+let dragGhost = null;
+let ghostOffsetX = 0;
+let ghostOffsetY = 0;
 
 function createTaskElement(task) {
   const li = document.createElement('li');
@@ -569,20 +585,24 @@ function createTaskElement(task) {
 
     document.getElementById('calendar').classList.add('cal-drop-mode');
 
-    const clone = li.cloneNode(true);
-    clone.style.cssText = `
+    // Ghost personalizado que sigue al cursor
+    ghostOffsetX = e.offsetX;
+    ghostOffsetY = e.offsetY;
+    dragGhost = li.cloneNode(true);
+    dragGhost.className = 'drag-ghost';
+    dragGhost.style.cssText = `
       width: ${li.offsetWidth}px;
-      transform: scale(1.02);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.10);
-      border-radius: 8px;
-      position: absolute;
-      top: -9999px;
-      background: #fff;
-      padding: 10px 0;
+      left: ${e.clientX - ghostOffsetX}px;
+      top: ${e.clientY - ghostOffsetY}px;
     `;
-    document.body.appendChild(clone);
-    e.dataTransfer.setDragImage(clone, e.offsetX, e.offsetY);
-    setTimeout(() => document.body.removeChild(clone), 0);
+    document.body.appendChild(dragGhost);
+
+    // Imagen de arrastre transparente para suprimir el ghost nativo
+    const blank = document.createElement('div');
+    blank.style.cssText = 'width:1px;height:1px;opacity:0.01;position:fixed;top:-10px;left:-10px';
+    document.body.appendChild(blank);
+    e.dataTransfer.setDragImage(blank, 0, 0);
+    setTimeout(() => document.body.removeChild(blank), 0);
 
     placeholder = document.createElement('li');
     placeholder.className = 'task-placeholder';
@@ -594,10 +614,19 @@ function createTaskElement(task) {
     }, 0);
   });
 
+  li.addEventListener('drag', e => {
+    if (dragGhost && e.clientX !== 0) {
+      dragGhost.style.left = (e.clientX - ghostOffsetX) + 'px';
+      dragGhost.style.top = (e.clientY - ghostOffsetY) + 'px';
+    }
+  });
+
   li.addEventListener('dragend', () => {
     li.classList.remove('dragging');
     if (placeholder && placeholder.parentNode) placeholder.remove();
     placeholder = null;
+
+    if (dragGhost) { dragGhost.remove(); dragGhost = null; }
 
     document.getElementById('calendar').classList.remove('cal-drop-mode');
     document.querySelectorAll('.cal-cell.cal-drag-over').forEach(c => c.classList.remove('cal-drag-over'));

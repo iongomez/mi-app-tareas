@@ -634,6 +634,61 @@ body {
   display: none;
 }
 
+/* ===== DRAG GHOST FLOTANTE ===== */
+.drag-ghost {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  transform: scale(1.02);
+  overflow: hidden;
+  transition:
+    width 0.2s ease,
+    border-radius 0.2s ease,
+    padding 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+/* Forma de evento de calendario */
+.drag-ghost--cal {
+  width: 120px !important;
+  border-radius: 4px !important;
+  padding: 4px 8px !important;
+  background: #fff8e0 !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12) !important;
+  transform: scale(1) !important;
+  border-left: 3px solid #f5c42a !important;
+}
+
+.drag-ghost--cal .drag-handle,
+.drag-ghost--cal .task-check,
+.drag-ghost--cal .delete-btn,
+.drag-ghost--cal .date-btn,
+.drag-ghost--cal .today-btn,
+.drag-ghost--cal .task-date-chip {
+  display: none !important;
+}
+
+.drag-ghost--cal .task-text {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  color: #1a1a1a !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
 /* ===== ADD TASK ROW (inline en la task list) ===== */
 .task-add-row {
   display: flex;
