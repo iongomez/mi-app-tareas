@@ -2,7 +2,9 @@
 const SUPABASE_URL = 'https://ipnfxeifwldhnxqebwla.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_S0g2nl5ZrcoteqDgtx3rtQ_Ztj7wbIg';
 
-const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+  auth: { flowType: 'pkce' },
+});
 
 async function signInWithGoogle() {
   const { error } = await supabaseClient.auth.signInWithOAuth({
