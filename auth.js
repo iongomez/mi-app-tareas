@@ -89,13 +89,12 @@ document.addEventListener('click', closeSignOutPopover);
 // Rely solely on onAuthStateChange — in Supabase v2 it fires INITIAL_SESSION
 // on load, which correctly processes OAuth callback tokens from the URL hash.
 supabaseClient.auth.onAuthStateChange((event, session) => {
-  console.log('[Auth] event:', event);
-  console.log('[Auth] session:', session);
-  console.log('[Auth] user:', session?.user ?? null);
   if (session?.user) {
     hideLoginScreen();
     updateUserUI(session.user);
+    if (typeof loadTasks === 'function') loadTasks(session.user.id);
   } else {
+    if (typeof clearTasks === 'function') clearTasks();
     showLoginScreen();
   }
 });

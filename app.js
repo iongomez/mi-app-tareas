@@ -13,35 +13,64 @@ const taskMenu = document.getElementById('taskMenu');
 let currentView = 'inbox'; // 'inbox' | 'day'
 let selectedDate = null;   // 'YYYY-MM-DD' or null
 let droppedOnCalendar = false;
+let currentUserId = null;
+let tasks = [];
 
-const INITIAL_TASKS = [
-  'Hacer la compra para casa',
-  'Llevar la moto al taller',
-  'Limpiar el coche',
-  'Revisar el correo',
-  'Llamar al médico',
-];
-
-let tasks = JSON.parse(localStorage.getItem('focusTasks') || 'null');
-
-if (!tasks || tasks.length === 0) {
-  tasks = INITIAL_TASKS.map((text, i) => ({ id: i + 1, text, completed: false, date: null }));
-  localStorage.setItem('focusTasks', JSON.stringify(tasks));
+// ===== SUPABASE DB =====
+async function dbLoad() {
+  const { data, error } = await supabaseClient
+    .from('tareas')
+    .select('*')
+    .order('created_at', { ascending: true });
+  if (error) { console.error('[DB] load:', error); return; }
+  tasks = data.map(row => ({
+    id: row.id,
+    text: row.text,
+    completed: row.completed,
+    date: row.date,
+  }));
 }
 
-// ===== MIGRATION =====
-function migrateTasks() {
-  let migrated = false;
-  tasks = tasks.map(t => {
-    if (!('date' in t)) { migrated = true; return { ...t, date: null }; }
-    return t;
-  });
-  if (migrated) save();
+async function dbAdd(task) {
+  const { data, error } = await supabaseClient
+    .from('tareas')
+    .insert({ user_id: currentUserId, text: task.text, completed: false, date: task.date })
+    .select()
+    .single();
+  if (error) { console.error('[DB] add:', error); return null; }
+  return data;
 }
-migrateTasks();
 
-function save() {
-  localStorage.setItem('focusTasks', JSON.stringify(tasks));
+function dbUpdate(id, changes) {
+  supabaseClient.from('tareas').update(changes).eq('id', id)
+    .then(({ error }) => { if (error) console.error('[DB] update:', error); });
+}
+
+function dbDelete(id) {
+  supabaseClient.from('tareas').delete().eq('id', id)
+    .then(({ error }) => { if (error) console.error('[DB] delete:', error); });
+}
+
+function dbDeleteMany(ids) {
+  if (!ids.length) return;
+  supabaseClient.from('tareas').delete().in('id', ids)
+    .then(({ error }) => { if (error) console.error('[DB] deleteMany:', error); });
+}
+
+// Called from auth.js when user signs in
+async function loadTasks(userId) {
+  currentUserId = userId;
+  await dbLoad();
+  render();
+  renderCalendar();
+}
+
+// Called from auth.js when user signs out
+function clearTasks() {
+  tasks = [];
+  currentUserId = null;
+  render();
+  renderCalendar();
 }
 
 // ===== DATE HELPERS =====
@@ -260,7 +289,7 @@ function renderCalendar() {
           if (task) {
             task.date = isoDate;
             droppedOnCalendar = true;
-            save();
+            dbUpdate(task.id, { date: isoDate });
             render();
             renderCalendar();
           }
@@ -317,15 +346,17 @@ document.getElementById('menuAddTask').addEventListener('click', () => {
 
 document.getElementById('menuClearCompleted').addEventListener('click', () => {
   closeMenu();
+  const ids = tasks.filter(t => t.completed).map(t => t.id);
   tasks = tasks.filter(t => !t.completed);
-  save();
+  dbDeleteMany(ids);
   render();
 });
 
 document.getElementById('menuClearAll').addEventListener('click', () => {
   closeMenu();
+  const ids = tasks.map(t => t.id);
   tasks = [];
-  save();
+  dbDeleteMany(ids);
   render();
 });
 
@@ -349,7 +380,7 @@ function openDatePopover(task, anchorEl) {
 
   input.addEventListener('change', () => {
     task.date = input.value || null;
-    save();
+    dbUpdate(task.id, { date: task.date });
     render();
     renderCalendar();
     closeDatePopover();
@@ -363,7 +394,7 @@ function openDatePopover(task, anchorEl) {
     removeBtn.textContent = 'Quitar fecha';
     removeBtn.addEventListener('click', () => {
       task.date = null;
-      save();
+      dbUpdate(task.id, { date: null });
       render();
       renderCalendar();
       closeDatePopover();
@@ -447,7 +478,7 @@ function createTaskElement(task) {
     task.completed = !task.completed;
     li.classList.toggle('completed', task.completed);
     check.setAttribute('aria-checked', task.completed);
-    save();
+    dbUpdate(task.id, { completed: task.completed });
     updateSubtitle();
   }
 
@@ -461,7 +492,6 @@ function createTaskElement(task) {
     text.contentEditable = 'true';
     text.classList.add('editing');
     text.focus();
-    // Place cursor at end
     const range = document.createRange();
     range.selectNodeContents(text);
     range.collapse(false);
@@ -477,9 +507,9 @@ function createTaskElement(task) {
     const newText = text.textContent.trim();
     if (newText && newText !== task.text) {
       task.text = newText;
-      save();
+      dbUpdate(task.id, { text: newText });
     } else if (!newText) {
-      text.textContent = task.text; // restore if empty
+      text.textContent = task.text;
     }
   }
 
@@ -506,7 +536,7 @@ function createTaskElement(task) {
     li.style.transition = 'opacity 0.18s, transform 0.18s';
     setTimeout(() => {
       tasks = tasks.filter(t => t.id !== task.id);
-      save();
+      dbDelete(task.id);
       render();
     }, 180);
   });
@@ -523,7 +553,7 @@ function createTaskElement(task) {
       e.stopPropagation();
       closeDatePopover();
       task.date = todayStr;
-      save();
+      dbUpdate(task.id, { date: todayStr });
       render();
       renderCalendar();
     });
@@ -534,7 +564,6 @@ function createTaskElement(task) {
 
   // ===== DRAG & DROP =====
   li.addEventListener('dragstart', e => {
-    // Cancel any active inline edit before dragging
     if (text.contentEditable === 'true') {
       text.contentEditable = 'false';
       text.classList.remove('editing');
@@ -602,7 +631,6 @@ function render() {
     const overdue = visible.filter(t => t.date < todayStr && !t.completed);
     const upcoming = visible.filter(t => t.date >= todayStr);
 
-    // Overdue section
     if (overdue.length > 0) {
       const header = document.createElement('li');
       header.className = 'task-date-group-header overdue';
@@ -612,7 +640,6 @@ function render() {
         .forEach(task => taskList.appendChild(createTaskElement(task)));
     }
 
-    // Future groups
     const groups = {};
     upcoming
       .sort((a, b) => a.date.localeCompare(b.date))
@@ -631,7 +658,6 @@ function render() {
     });
 
   } else if (currentView === 'day' && selectedDate === toISODate(new Date())) {
-    // Today: overdue first, then today's tasks
     const todayStr = toISODate(new Date());
     const overdue = visible.filter(t => t.date < todayStr);
     const todayTasks = visible.filter(t => t.date === todayStr);
@@ -662,23 +688,21 @@ function render() {
   renderUpcoming();
 }
 
-taskForm.addEventListener('submit', e => {
+taskForm.addEventListener('submit', async e => {
   e.preventDefault();
   const text = taskInput.value.trim();
   if (!text) return;
 
-  tasks.push({
-    id: Date.now(),
-    text,
-    completed: false,
-    date: currentView === 'day' ? selectedDate : null,
-  });
-  save();
-  render();
-  renderCalendar();
   taskInput.value = '';
   taskAddBtn.disabled = true;
   taskInput.focus();
+
+  const created = await dbAdd({ text, date: currentView === 'day' ? selectedDate : null });
+  if (!created) return;
+
+  tasks.push({ id: created.id, text: created.text, completed: created.completed, date: created.date });
+  render();
+  renderCalendar();
 });
 
 taskList.addEventListener('dragover', e => {
@@ -711,15 +735,13 @@ taskList.addEventListener('drop', e => {
   placeholder.remove();
   placeholder = null;
 
-  // Reorder visible tasks; keep non-visible tasks intact
+  // Reorder in memory (not persisted — no order column)
   const visibleIds = new Set(getVisibleTasks().map(t => t.id));
   const reorderedVisible = [...taskList.querySelectorAll('.task-item')]
     .map(el => tasks.find(t => String(t.id) === el.dataset.id))
     .filter(Boolean);
   const nonVisible = tasks.filter(t => !visibleIds.has(t.id));
   tasks = [...reorderedVisible, ...nonVisible];
-
-  save();
 });
 
 // ===== UPCOMING TASKS (widget "Planificadas") =====
@@ -745,7 +767,6 @@ function renderUpcoming() {
     return;
   }
 
-  // Group by date
   const groups = {};
   upcoming.forEach(t => {
     if (!groups[t.date]) groups[t.date] = [];
@@ -774,7 +795,6 @@ function renderUpcoming() {
   });
 }
 
-// Init
+// Init — tasks load via auth.js → loadTasks() after sign-in
 renderCalendar();
 render();
-renderUpcoming();
