@@ -1,11 +1,8 @@
 // DOM references
-const taskForm = document.getElementById('taskForm');
-const taskInput = document.getElementById('taskInput');
 const taskList = document.getElementById('taskList');
 const subtitle = document.getElementById('subtitle');
 const taskCountBadge = document.getElementById('taskCountBadge');
 const widgetTitle = document.getElementById('widgetTitle');
-const taskAddBtn = document.getElementById('taskAddBtn');
 const moreBtn = document.getElementById('moreBtn');
 const taskMenu = document.getElementById('taskMenu');
 
@@ -340,8 +337,8 @@ taskMenu.addEventListener('click', e => e.stopPropagation());
 
 document.getElementById('menuAddTask').addEventListener('click', () => {
   closeMenu();
-  taskInput.focus();
-  taskInput.scrollIntoView({ behavior: 'smooth' });
+  const addInput = taskList.querySelector('.task-add-input');
+  if (addInput) { addInput.focus(); addInput.scrollIntoView({ behavior: 'smooth' }); }
 });
 
 document.getElementById('menuClearCompleted').addEventListener('click', () => {
@@ -360,9 +357,6 @@ document.getElementById('menuClearAll').addEventListener('click', () => {
   render();
 });
 
-taskInput.addEventListener('input', () => {
-  taskAddBtn.disabled = taskInput.value.trim() === '';
-});
 
 // ===== DATE POPOVER =====
 let activeDatePopover = null;
@@ -637,7 +631,8 @@ function render() {
       <button class="empty-state-cta">+ Añadir tarea</button>
     `;
     empty.querySelector('.empty-state-cta').addEventListener('click', () => {
-      taskInput.focus();
+      const addInput = taskList.querySelector('.task-add-input');
+      if (addInput) addInput.focus();
     });
     taskList.appendChild(empty);
   } else if (currentView === 'planned') {
@@ -698,26 +693,78 @@ function render() {
     visible.forEach(task => taskList.appendChild(createTaskElement(task)));
   }
 
+  taskList.appendChild(createAddRow());
   updateSubtitle();
   renderUpcoming();
 }
 
-taskForm.addEventListener('submit', async e => {
-  e.preventDefault();
-  const text = taskInput.value.trim();
-  if (!text) return;
+// ===== INLINE ADD ROW =====
+function createAddRow() {
+  const li = document.createElement('li');
+  li.className = 'task-add-row';
 
-  taskInput.value = '';
-  taskAddBtn.disabled = true;
-  taskInput.focus();
+  const icon = document.createElement('span');
+  icon.className = 'task-add-icon';
+  icon.setAttribute('aria-hidden', 'true');
+  icon.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
 
-  const created = await dbAdd({ text, date: currentView === 'day' ? selectedDate : null });
-  if (!created) return;
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.placeholder = 'Añadir tarea';
+  input.className = 'task-add-input';
+  input.autocomplete = 'off';
 
-  tasks.push({ id: created.id, text: created.text, completed: created.completed, date: created.date });
-  render();
-  renderCalendar();
-});
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'task-add-btn';
+  btn.textContent = 'Añadir';
+  btn.disabled = true;
+
+  li.append(icon, input, btn);
+
+  li.addEventListener('click', e => {
+    if (e.target !== input && e.target !== btn) input.focus();
+  });
+
+  input.addEventListener('focus', () => li.classList.add('active'));
+
+  input.addEventListener('input', () => {
+    btn.disabled = input.value.trim() === '';
+  });
+
+  input.addEventListener('blur', () => {
+    if (!input.value.trim()) li.classList.remove('active');
+  });
+
+  // Prevent blur when clicking the button
+  btn.addEventListener('mousedown', e => e.preventDefault());
+
+  async function submitTask() {
+    const text = input.value.trim();
+    if (!text) return;
+    input.value = '';
+    btn.disabled = true;
+    const created = await dbAdd({ text, date: currentView === 'day' ? selectedDate : null });
+    if (!created) return;
+    tasks.push({ id: created.id, text: created.text, completed: created.completed, date: created.date });
+    render();
+    renderCalendar();
+    // Re-focus for continuous adding
+    requestAnimationFrame(() => {
+      const newInput = taskList.querySelector('.task-add-input');
+      if (newInput) newInput.focus();
+    });
+  }
+
+  btn.addEventListener('click', submitTask);
+
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); submitTask(); }
+    if (e.key === 'Escape') { input.value = ''; input.blur(); }
+  });
+
+  return li;
+}
 
 taskList.addEventListener('dragover', e => {
   e.preventDefault();
