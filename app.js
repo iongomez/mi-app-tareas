@@ -808,7 +808,9 @@ taskList.addEventListener('dragover', e => {
     }
   }
 
+  const addRow = taskList.querySelector('.task-add-row');
   if (insertBefore) taskList.insertBefore(placeholder, insertBefore);
+  else if (addRow) taskList.insertBefore(placeholder, addRow);
   else taskList.appendChild(placeholder);
 });
 
