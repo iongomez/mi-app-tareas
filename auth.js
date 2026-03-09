@@ -91,15 +91,28 @@ document.getElementById('sidebarUserSection').addEventListener('click', e => {
 document.addEventListener('click', closeSignOutPopover);
 
 // ===== INIT =====
-// Rely solely on onAuthStateChange — in Supabase v2 it fires INITIAL_SESSION
-// on load, which correctly processes OAuth callback tokens from the URL hash.
-supabaseClient.auth.onAuthStateChange((event, session) => {
-  if (session?.user) {
-    hideLoginScreen();
-    updateUserUI(session.user);
-    if (typeof loadTasks === 'function') loadTasks(session.user.id);
-  } else {
-    if (typeof clearTasks === 'function') clearTasks();
-    showLoginScreen();
-  }
-});
+const DEV_MODE = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+
+if (DEV_MODE) {
+  const devUser = {
+    id: 'dev-user',
+    email: 'dev@localhost',
+    user_metadata: { full_name: 'Dev User' },
+  };
+  hideLoginScreen();
+  updateUserUI(devUser);
+  if (typeof loadTasks === 'function') loadTasks(devUser.id);
+} else {
+  // Rely solely on onAuthStateChange — in Supabase v2 it fires INITIAL_SESSION
+  // on load, which correctly processes OAuth callback tokens from the URL hash.
+  supabaseClient.auth.onAuthStateChange((_event, session) => {
+    if (session?.user) {
+      hideLoginScreen();
+      updateUserUI(session.user);
+      if (typeof loadTasks === 'function') loadTasks(session.user.id);
+    } else {
+      if (typeof clearTasks === 'function') clearTasks();
+      showLoginScreen();
+    }
+  });
+}
