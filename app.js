@@ -29,6 +29,7 @@ async function dbLoad() {
 }
 
 async function dbAdd(task) {
+  if (DEV_MODE) return { id: 'dev-' + Date.now(), text: task.text, completed: false, date: task.date };
   const { data, error } = await supabaseClient
     .from('tareas')
     .insert({ user_id: currentUserId, text: task.text, completed: false, date: task.date })
@@ -39,25 +40,47 @@ async function dbAdd(task) {
 }
 
 function dbUpdate(id, changes) {
+  if (DEV_MODE) return;
   supabaseClient.from('tareas').update(changes).eq('id', id)
     .then(({ error }) => { if (error) console.error('[DB] update:', error); });
 }
 
 function dbDelete(id) {
+  if (DEV_MODE) return;
   supabaseClient.from('tareas').delete().eq('id', id)
     .then(({ error }) => { if (error) console.error('[DB] delete:', error); });
 }
 
 function dbDeleteMany(ids) {
+  if (DEV_MODE) return;
   if (!ids.length) return;
   supabaseClient.from('tareas').delete().in('id', ids)
     .then(({ error }) => { if (error) console.error('[DB] deleteMany:', error); });
 }
 
+// ===== TAREAS INERTES =====
+// Solo visibles en DEV_MODE (localhost). No se persisten en base de datos.
+const DEV_TASKS = () => {
+  const today = toISODate(new Date());
+  const tomorrow = toISODate(new Date(Date.now() + 86400000));
+  const nextWeek = toISODate(new Date(Date.now() + 7 * 86400000));
+  const inTwoWeeks = toISODate(new Date(Date.now() + 14 * 86400000));
+  return [
+    { id: 'dev-1', text: 'Revisar diseño del dashboard (Dev)', completed: false, date: null },
+    { id: 'dev-2', text: 'Escribir los casos de uso (Dev)', completed: false, date: null },
+    { id: 'dev-3', text: 'Tarea completada de ejemplo (Dev)', completed: true, date: null },
+    { id: 'dev-4', text: 'Llamada con el equipo (Dev)', completed: false, date: today },
+    { id: 'dev-5', text: 'Revisar pull requests (Dev)', completed: false, date: today },
+    { id: 'dev-6', text: 'Demo con cliente (Dev)', completed: false, date: tomorrow },
+    { id: 'dev-7', text: 'Retrospectiva del sprint (Dev)', completed: false, date: nextWeek },
+    { id: 'dev-8', text: 'Planificación Q2 (Dev)', completed: false, date: inTwoWeeks },
+  ];
+};
+
 // Called from auth.js when user signs in
 async function loadTasks(userId) {
   currentUserId = userId;
-  await dbLoad();
+  if (DEV_MODE) { tasks = DEV_TASKS(); } else { await dbLoad(); }
   render();
   renderCalendar();
 }
