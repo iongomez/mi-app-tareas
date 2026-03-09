@@ -376,47 +376,148 @@ let activeDatePopover = null;
 function openDatePopover(task, anchorEl) {
   closeDatePopover();
 
+  let popDate = task.date ? new Date(task.date + 'T00:00:00') : new Date();
+
   const popover = document.createElement('div');
   popover.className = 'date-popover';
   popover.addEventListener('click', e => e.stopPropagation());
 
-  const input = document.createElement('input');
-  input.type = 'date';
-  if (task.date) input.value = task.date;
-
-  input.addEventListener('change', () => {
-    task.date = input.value || null;
+  function applyDate(isoDate) {
+    task.date = isoDate || null;
     dbUpdate(task.id, { date: task.date });
     render();
     renderCalendar();
     closeDatePopover();
+  }
+
+  // === TOP: text input ===
+  const textInput = document.createElement('input');
+  textInput.type = 'text';
+  textInput.className = 'date-popover-text-input';
+  textInput.placeholder = 'dd/mm/aaaa';
+  textInput.autocomplete = 'off';
+  if (task.date) {
+    const [y, m, d] = task.date.split('-');
+    textInput.value = `${d}/${m}/${y}`;
+  }
+
+  textInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      const parts = textInput.value.trim().split('/');
+      if (parts.length === 3) {
+        const [d, m, y] = parts;
+        const iso = `${y.padStart(4,'0')}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
+        if (!isNaN(new Date(iso + 'T00:00:00').getTime())) { applyDate(iso); return; }
+      }
+      textInput.classList.add('date-popover-text-input--error');
+      setTimeout(() => textInput.classList.remove('date-popover-text-input--error'), 500);
+    }
+    if (e.key === 'Escape') closeDatePopover();
   });
 
-  popover.appendChild(input);
+  // === MIDDLE: quick actions ===
+  const actionsRow = document.createElement('div');
+  actionsRow.className = 'date-popover-actions';
 
-  if (task.date) {
-    const removeBtn = document.createElement('button');
-    removeBtn.className = 'date-popover-remove';
-    removeBtn.textContent = 'Quitar fecha';
-    removeBtn.addEventListener('click', () => {
-      task.date = null;
-      dbUpdate(task.id, { date: null });
-      render();
-      renderCalendar();
-      closeDatePopover();
+  const todayBtn = document.createElement('button');
+  todayBtn.className = 'date-popover-action-btn';
+  todayBtn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.22" y1="4.22" x2="7.05" y2="7.05"/><line x1="16.95" y1="16.95" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.22" y1="19.78" x2="7.05" y2="16.95"/><line x1="16.95" y1="7.05" x2="19.78" y2="4.22"/></svg> Hoy`;
+  todayBtn.addEventListener('click', () => applyDate(toISODate(new Date())));
+
+  const inboxBtn = document.createElement('button');
+  inboxBtn.className = 'date-popover-action-btn';
+  inboxBtn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/></svg> Inbox`;
+  inboxBtn.addEventListener('click', () => applyDate(null));
+
+  actionsRow.append(todayBtn, inboxBtn);
+
+  // === BOTTOM: mini calendar ===
+  const calSection = document.createElement('div');
+  calSection.className = 'date-popover-cal';
+
+  const calNav = document.createElement('div');
+  calNav.className = 'date-popover-cal-nav';
+
+  const prevBtn = document.createElement('button');
+  prevBtn.className = 'date-popover-cal-nav-btn';
+  prevBtn.innerHTML = '&#8249;';
+
+  const monthLabel = document.createElement('span');
+  monthLabel.className = 'date-popover-cal-month';
+
+  const nextBtn = document.createElement('button');
+  nextBtn.className = 'date-popover-cal-nav-btn';
+  nextBtn.innerHTML = '&#8250;';
+
+  calNav.append(prevBtn, monthLabel, nextBtn);
+
+  const calGrid = document.createElement('div');
+  calGrid.className = 'date-popover-cal-grid';
+
+  function renderMiniCal() {
+    const monthNames = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+    const year = popDate.getFullYear();
+    const month = popDate.getMonth();
+    monthLabel.textContent = `${monthNames[month]} ${year}`;
+    calGrid.innerHTML = '';
+
+    const headerRow = document.createElement('div');
+    headerRow.className = 'date-popover-cal-row';
+    ['Lu','Ma','Mi','Ju','Vi','Sa','Do'].forEach(d => {
+      const cell = document.createElement('span');
+      cell.className = 'date-popover-cal-cell date-popover-cal-cell--header';
+      cell.textContent = d;
+      headerRow.appendChild(cell);
     });
-    popover.appendChild(removeBtn);
+    calGrid.appendChild(headerRow);
+
+    const firstDay = new Date(year, month, 1).getDay();
+    const startOffset = firstDay === 0 ? 6 : firstDay - 1;
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const todayStr = toISODate(new Date());
+    const totalCells = Math.ceil((startOffset + daysInMonth) / 7) * 7;
+
+    let row = null;
+    for (let i = 0; i < totalCells; i++) {
+      if (i % 7 === 0) {
+        row = document.createElement('div');
+        row.className = 'date-popover-cal-row';
+        calGrid.appendChild(row);
+      }
+      const span = document.createElement('span');
+      span.className = 'date-popover-cal-cell';
+
+      const dayNum = i - startOffset + 1;
+      if (i < startOffset || dayNum > daysInMonth) {
+        span.classList.add('date-popover-cal-cell--other');
+      } else {
+        const iso = `${year}-${String(month + 1).padStart(2,'0')}-${String(dayNum).padStart(2,'0')}`;
+        span.textContent = dayNum;
+        if (iso === todayStr) span.classList.add('date-popover-cal-cell--today');
+        if (iso === task.date) span.classList.add('date-popover-cal-cell--selected');
+        span.addEventListener('click', () => applyDate(iso));
+      }
+      row.appendChild(span);
+    }
   }
+
+  prevBtn.addEventListener('click', () => { popDate = new Date(popDate.getFullYear(), popDate.getMonth() - 1, 1); renderMiniCal(); });
+  nextBtn.addEventListener('click', () => { popDate = new Date(popDate.getFullYear(), popDate.getMonth() + 1, 1); renderMiniCal(); });
+
+  calSection.append(calNav, calGrid);
+  renderMiniCal();
+
+  popover.append(textInput, actionsRow, calSection);
 
   const rect = anchorEl.getBoundingClientRect();
   popover.style.position = 'fixed';
-  popover.style.top = `${rect.bottom + 4}px`;
+  popover.style.top = `${rect.bottom + 6}px`;
   popover.style.right = `${window.innerWidth - rect.right}px`;
   popover.style.zIndex = '200';
 
   document.body.appendChild(popover);
   activeDatePopover = popover;
-  input.focus();
+  textInput.focus();
 }
 
 function closeDatePopover() {

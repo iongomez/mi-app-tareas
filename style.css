@@ -925,46 +925,166 @@ body {
 .date-popover {
   background: #fff;
   border: 1px solid #ebebeb;
-  border-radius: 10px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10);
-  padding: 8px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  padding: 12px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  min-width: 160px;
+  gap: 0;
+  width: 252px;
 }
 
-.date-popover input[type="date"] {
-  border: 1px solid #ebebeb;
-  border-radius: 6px;
-  padding: 6px 8px;
+.date-popover-text-input {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 8px 10px;
   font-family: inherit;
   font-size: 13px;
   color: #1a1a1a;
   outline: none;
-  cursor: pointer;
-  width: 100%;
+  transition: border-color 0.15s;
+  margin-bottom: 10px;
 }
 
-.date-popover input[type="date"]:focus {
+.date-popover-text-input::placeholder {
+  color: #bbb;
+}
+
+.date-popover-text-input:focus {
   border-color: #f5c42a;
 }
 
-.date-popover-remove {
-  border: none;
-  background: none;
-  font-family: inherit;
-  font-size: 12px;
-  color: #e03535;
-  cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 6px;
-  text-align: left;
-  transition: background 0.12s;
+.date-popover-text-input--error {
+  border-color: #e03535 !important;
+  animation: dp-shake 0.35s;
 }
 
-.date-popover-remove:hover {
-  background: #fff3f3;
+@keyframes dp-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+.date-popover-actions {
+  display: flex;
+  gap: 6px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.date-popover-action-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+  background: #fafafa;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: #555;
+  padding: 7px 6px;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+}
+
+.date-popover-action-btn:hover {
+  background: #fff8e0;
+  border-color: #f5c42a;
+  color: #1a1a1a;
+}
+
+/* Mini calendar */
+.date-popover-cal {
+  padding-top: 10px;
+}
+
+.date-popover-cal-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.date-popover-cal-month {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.date-popover-cal-nav-btn {
+  border: none;
+  background: none;
+  color: #aaa;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: color 0.12s, background 0.12s;
+}
+
+.date-popover-cal-nav-btn:hover {
+  color: #1a1a1a;
+  background: #f2f2f2;
+}
+
+.date-popover-cal-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.date-popover-cal-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.date-popover-cal-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11.5px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  color: #333;
+  transition: background 0.1s;
+}
+
+.date-popover-cal-cell--header {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: #bbb;
+  cursor: default;
+  height: 22px;
+}
+
+.date-popover-cal-cell--other {
+  pointer-events: none;
+}
+
+.date-popover-cal-cell:not(.date-popover-cal-cell--header):not(.date-popover-cal-cell--other):hover {
+  background: #f5f5f5;
+}
+
+.date-popover-cal-cell--today {
+  color: #f5c42a;
+  font-weight: 700;
+}
+
+.date-popover-cal-cell--selected {
+  background: #f5c42a;
+  color: #1a1a1a;
+  font-weight: 700;
+}
+
+.date-popover-cal-cell--selected:hover {
+  background: #f0bc20;
 }
 
 /* ===== PLANNED VIEW — DATE GROUP HEADERS ===== */
