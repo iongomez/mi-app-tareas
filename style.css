@@ -61,8 +61,9 @@ body {
 }
 
 .logo-name {
+  font-family: 'Manrope', sans-serif;
   font-size: 16.3px;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: -0.2px;
   color: #1a1a1a;
 }
@@ -1265,45 +1266,6 @@ body {
   background-size: 40px 40px;
 }
 
-.login-illustration {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(calc(-50% + 110px), calc(-50% - 86px));
-  width: 264px;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-  opacity: 0.6;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-}
-
-.illus-header-bar {
-  height: 16px;
-  background: #f1f5f9;
-  border-radius: 4px;
-  width: 66%;
-  margin-bottom: 16px;
-}
-
-.illus-yellow-block {
-  height: 96px;
-  width: 119px;
-  background: rgba(245,196,42,0.2);
-  border-left: 4px solid #f5c42a;
-  border-radius: 6px;
-  box-shadow: 0 0 15px rgba(245,196,42,0.3);
-  margin-bottom: 16px;
-}
-
-.illus-slate-block {
-  height: 48px;
-  background: #f8fafc;
-  border-left: 4px solid #e2e8f0;
-  border-radius: 6px;
-}
 
 .login-container {
   position: relative;
@@ -1326,14 +1288,31 @@ body {
 
 .login-accent-circle {
   position: absolute;
-  width: 48px;
-  height: 48px;
   background: #f5c42a;
   border-radius: 50%;
   opacity: 0.1;
+  pointer-events: none;
+}
+
+.login-accent-circle--lg {
+  width: 48px;
+  height: 48px;
   top: 48px;
   left: calc(50% - 96px);
-  pointer-events: none;
+}
+
+.login-accent-circle--md {
+  width: 23px;
+  height: 23px;
+  right: -20px;
+  bottom: -16px;
+}
+
+.login-accent-circle--sm {
+  width: 13px;
+  height: 13px;
+  left: -10px;
+  bottom: -10px;
 }
 
 .login-logo-mark {
@@ -1357,14 +1336,16 @@ body {
 }
 
 .login-app-name {
+  font-family: 'Manrope', sans-serif;
   font-size: 24px;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: -0.6px;
-  color: #0f172a;
+  color: #000;
   margin: 0 0 16px 0;
 }
 
 .login-headline {
+  position: relative;
   font-size: 30px;
   font-weight: 700;
   color: #0f172a;
