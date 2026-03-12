@@ -1328,11 +1328,10 @@ body {
   margin-bottom: 24px;
 }
 
-.login-logo-border {
-  width: 24px;
-  height: 24px;
-  border: 2px solid white;
-  border-radius: 2px;
+.login-logo-img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
 }
 
 .login-app-name {
