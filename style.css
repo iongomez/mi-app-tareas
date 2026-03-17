@@ -1469,3 +1469,271 @@ body {
 .signout-btn:hover {
   background: #fff3f3;
 }
+
+/* ===== WIDGET TIME GRID ===== */
+.widget-timegrid {
+  grid-row: 1 / 3;
+  grid-column: 2;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0;
+}
+
+.tgv-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid #ebebeb;
+  flex-shrink: 0;
+}
+
+.tgv-toggle {
+  display: flex;
+  background: #f3f3f3;
+  border-radius: 8px;
+  padding: 2px;
+}
+
+.tgv-toggle-btn {
+  padding: 5px 14px;
+  border: none;
+  background: none;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #8a8a8a;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.tgv-toggle-btn--active {
+  background: #fff;
+  color: #1a1a1a;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.10);
+}
+
+.tgv-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tgv-nav-btn {
+  width: 26px;
+  height: 26px;
+  background: #f3f3f3;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 17px;
+  color: #8a8a8a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 2px;
+  transition: background 0.15s;
+}
+.tgv-nav-btn:hover { background: #e8e8e8; }
+
+.tgv-nav-label {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #1a1a1a;
+  min-width: 130px;
+  text-align: center;
+}
+
+/* Grid layout */
+.tgv-grid {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}
+
+.tgv-header-row {
+  display: flex;
+  flex-shrink: 0;
+  border-bottom: 1px solid #ebebeb;
+}
+
+.tgv-corner {
+  width: 52px;
+  flex-shrink: 0;
+}
+
+.tgv-day-hdr {
+  flex: 1;
+  padding: 8px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  cursor: pointer;
+  transition: background 0.12s;
+  border-left: 1px solid #ebebeb;
+}
+.tgv-day-hdr:hover { background: #f8f7f4; }
+
+.tgv-day-name {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #8a8a8a;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tgv-day-num {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1a1a;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.tgv-day-num.today {
+  background: #f5c42a;
+  color: #1a1a1a;
+  font-weight: 700;
+}
+
+.tgv-body {
+  display: flex;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.tgv-time-col {
+  width: 52px;
+  flex-shrink: 0;
+}
+
+.tgv-time-lbl {
+  height: 52px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding: 4px 8px 0 0;
+  font-size: 10.5px;
+  color: #aaa;
+  font-weight: 500;
+  box-sizing: border-box;
+}
+
+.tgv-slots {
+  flex: 1;
+  display: flex;
+}
+
+.tgv-slot-col {
+  flex: 1;
+  border-left: 1px solid #ebebeb;
+}
+
+.tgv-block {
+  height: 52px;
+  border-bottom: 1px solid #f0f0f0;
+  padding: 2px 3px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  position: relative;
+  transition: background 0.1s;
+  box-sizing: border-box;
+}
+
+.tgv-block:hover {
+  background: #fafafa;
+}
+
+.tgv-drop-mode .tgv-block {
+  background: rgba(245, 196, 42, 0.06);
+}
+
+.tgv-block--hover {
+  background: rgba(245, 196, 42, 0.18) !important;
+  border-color: rgba(245, 196, 42, 0.4) !important;
+}
+
+/* Task cards inside blocks */
+.tgv-task-card {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #fff8e1;
+  border-left: 2.5px solid #f5c42a;
+  border-radius: 3px;
+  padding: 2px 4px;
+  font-size: 11px;
+  cursor: grab;
+  user-select: none;
+  overflow: hidden;
+  transition: opacity 0.15s;
+}
+
+.tgv-task-card:hover .tgv-unschedule-btn {
+  opacity: 1;
+}
+
+.tgv-task-card.completed {
+  opacity: 0.5;
+  text-decoration: line-through;
+}
+
+.tgv-task-card.tgv-card-dragging {
+  opacity: 0.4;
+}
+
+.tgv-task-text {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #1a1a1a;
+  font-weight: 500;
+}
+
+.tgv-unschedule-btn {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #aaa;
+  font-size: 12px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  opacity: 0;
+  transition: opacity 0.12s, color 0.12s;
+  padding: 0;
+}
+
+.tgv-unschedule-btn:hover {
+  color: #e03535;
+}
+
+/* Day view day selector */
+.tgv-day-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tgv-day-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a1a1a;
+  min-width: 150px;
+  text-align: center;
+}
