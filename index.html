@@ -83,6 +83,18 @@
           </span>
           Planificadas
         </a>
+        <a class="nav-item" id="navWeek" href="#">
+          <span class="nav-icon">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="14" x2="8" y2="14"/><line x1="12" y1="14" x2="12" y2="14"/><line x1="16" y1="14" x2="16" y2="14"/></svg>
+          </span>
+          Semana
+        </a>
+        <a class="nav-item" id="navTimeDay" href="#">
+          <span class="nav-icon">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </span>
+          Bloqueo
+        </a>
       </nav>
       <div class="sidebar-bottom">
         <div class="sidebar-user" id="sidebarUserSection">
@@ -99,7 +111,7 @@
       <div class="dashboard-grid">
 
         <!-- Calendar Widget -->
-        <div class="widget widget-calendar">
+        <div class="widget widget-calendar" id="calendarWidget">
           <div class="widget-header">
             <span class="widget-title-text" id="calTitle">Marzo 2026</span>
             <div class="cal-nav">
@@ -137,11 +149,16 @@
         </div>
 
         <!-- Events Widget -->
-        <div class="widget widget-events">
+        <div class="widget widget-events" id="eventsWidget">
           <div class="widget-header">
             <span class="widget-title-text">Planificadas</span>
           </div>
           <div id="upcomingList"></div>
+        </div>
+
+        <!-- Time Grid Widget (Semana / Bloqueo views) -->
+        <div class="widget widget-timegrid" id="timeGridWidget" hidden>
+          <!-- rendered by JS -->
         </div>
 
       </div>
