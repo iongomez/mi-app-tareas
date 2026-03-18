@@ -5,9 +5,6 @@ const taskCountBadge = document.getElementById('taskCountBadge');
 const widgetTitle = document.getElementById('widgetTitle');
 const moreBtn = document.getElementById('moreBtn');
 const taskMenu = document.getElementById('taskMenu');
-const calendarWidgetEl = document.getElementById('calendarWidget');
-const eventsWidgetEl = document.getElementById('eventsWidget');
-const timeGridWidget = document.getElementById('timeGridWidget');
 
 // ===== STATE =====
 let currentView = 'inbox'; // 'inbox' | 'day'
@@ -28,12 +25,11 @@ async function dbLoad() {
     text: row.text,
     completed: row.completed,
     date: row.date,
-    scheduled_time: row.scheduled_time || null,
   }));
 }
 
 async function dbAdd(task) {
-  if (DEV_MODE) return { id: 'dev-' + Date.now(), text: task.text, completed: false, date: task.date, scheduled_time: task.scheduled_time || null };
+  if (DEV_MODE) return { id: 'dev-' + Date.now(), text: task.text, completed: false, date: task.date };
   const { data, error } = await supabaseClient
     .from('tareas')
     .insert({ user_id: currentUserId, text: task.text, completed: false, date: task.date })
@@ -70,16 +66,14 @@ const DEV_TASKS = () => {
   const nextWeek = toISODate(new Date(Date.now() + 7 * 86400000));
   const inTwoWeeks = toISODate(new Date(Date.now() + 14 * 86400000));
   return [
-    { id: 'dev-1', text: 'Revisar diseño del dashboard (Dev)', completed: false, date: null, scheduled_time: null },
-    { id: 'dev-2', text: 'Escribir los casos de uso (Dev)', completed: false, date: null, scheduled_time: null },
-    { id: 'dev-3', text: 'Tarea completada de ejemplo (Dev)', completed: true, date: null, scheduled_time: null },
-    { id: 'dev-4', text: 'Llamada con el equipo (Dev)', completed: false, date: today, scheduled_time: null },
-    { id: 'dev-5', text: 'Revisar pull requests (Dev)', completed: false, date: today, scheduled_time: null },
-    { id: 'dev-6', text: 'Demo con cliente (Dev)', completed: false, date: tomorrow, scheduled_time: null },
-    { id: 'dev-7', text: 'Retrospectiva del sprint (Dev)', completed: false, date: nextWeek, scheduled_time: null },
-    { id: 'dev-8', text: 'Planificación Q2 (Dev)', completed: false, date: inTwoWeeks, scheduled_time: null },
-    { id: 'dev-9', text: 'Daily standup (Dev)', completed: false, date: today, scheduled_time: '09:00' },
-    { id: 'dev-10', text: 'Revisión de diseño (Dev)', completed: false, date: tomorrow, scheduled_time: '10:30' },
+    { id: 'dev-1', text: 'Revisar diseño del dashboard (Dev)', completed: false, date: null },
+    { id: 'dev-2', text: 'Escribir los casos de uso (Dev)', completed: false, date: null },
+    { id: 'dev-3', text: 'Tarea completada de ejemplo (Dev)', completed: true, date: null },
+    { id: 'dev-4', text: 'Llamada con el equipo (Dev)', completed: false, date: today },
+    { id: 'dev-5', text: 'Revisar pull requests (Dev)', completed: false, date: today },
+    { id: 'dev-6', text: 'Demo con cliente (Dev)', completed: false, date: tomorrow },
+    { id: 'dev-7', text: 'Retrospectiva del sprint (Dev)', completed: false, date: nextWeek },
+    { id: 'dev-8', text: 'Planificación Q2 (Dev)', completed: false, date: inTwoWeeks },
   ];
 };
 
@@ -99,31 +93,10 @@ function clearTasks() {
   renderCalendar();
 }
 
-// ===== TIME GRID CONSTANTS =====
-const TIME_SLOTS = [];
-for (let mins = 8 * 60; mins < 19 * 60; mins += 30) {
-  const h = Math.floor(mins / 60);
-  const m = mins % 60;
-  TIME_SLOTS.push(`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`);
-}
-
 // ===== DATE HELPERS =====
 function toISODate(date) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 }
-
-function getWeekStart(date) {
-  const d = new Date(date);
-  const day = d.getDay(); // 0=Sun,1=Mon,...
-  const diff = (day === 0) ? -6 : 1 - day; // shift to Monday
-  d.setDate(d.getDate() + diff);
-  d.setHours(0, 0, 0, 0);
-  return d;
-}
-
-// ===== TIME GRID STATE =====
-let currentWeekStart = getWeekStart(new Date());
-let timeDayDate = toISODate(new Date());
 
 function formatDateLabel(isoDate) {
   const [y, m, d] = isoDate.split('-').map(Number);
@@ -166,7 +139,7 @@ function getVisibleTasks() {
   const todayStr = toISODate(new Date());
   if (currentView === 'inbox') return tasks.filter(t => t.date === null);
   if (currentView === 'day') {
-    const todayTasks = tasks.filter(t => t.date === selectedDate && !t.scheduled_time);
+    const todayTasks = tasks.filter(t => t.date === selectedDate);
     if (selectedDate === todayStr) {
       const overdue = getOverdueTasks();
       return [...overdue, ...todayTasks];
@@ -174,10 +147,7 @@ function getVisibleTasks() {
     return todayTasks;
   }
   if (currentView === 'planned') {
-    return tasks.filter(t => t.date !== null && !t.scheduled_time);
-  }
-  if (currentView === 'week' || currentView === 'timeday') {
-    return tasks.filter(t => t.date === null);
+    return tasks.filter(t => t.date !== null);
   }
   return tasks;
 }
@@ -185,12 +155,9 @@ function getVisibleTasks() {
 function switchToInbox() {
   currentView = 'inbox';
   selectedDate = null;
-  hideTimeGrid();
   document.getElementById('navInbox').classList.add('active');
   document.getElementById('navToday').classList.remove('active');
   document.getElementById('navPlanned').classList.remove('active');
-  document.getElementById('navWeek').classList.remove('active');
-  document.getElementById('navTimeDay').classList.remove('active');
   render();
   renderCalendar();
 }
@@ -198,11 +165,8 @@ function switchToInbox() {
 function switchToDay(isoDate) {
   currentView = 'day';
   selectedDate = isoDate;
-  hideTimeGrid();
   document.getElementById('navInbox').classList.remove('active');
   document.getElementById('navPlanned').classList.remove('active');
-  document.getElementById('navWeek').classList.remove('active');
-  document.getElementById('navTimeDay').classList.remove('active');
   document.getElementById('navToday').classList.toggle('active', isoDate === toISODate(new Date()));
   render();
   renderCalendar();
@@ -211,11 +175,8 @@ function switchToDay(isoDate) {
 function switchToPlanned() {
   currentView = 'planned';
   selectedDate = null;
-  hideTimeGrid();
   document.getElementById('navInbox').classList.remove('active');
   document.getElementById('navToday').classList.remove('active');
-  document.getElementById('navWeek').classList.remove('active');
-  document.getElementById('navTimeDay').classList.remove('active');
   document.getElementById('navPlanned').classList.add('active');
   render();
   renderCalendar();
@@ -235,9 +196,6 @@ function updateSubtitle() {
     subtitle.textContent = pending === 1 ? '1 tarea pendiente' : `${pending} tareas pendientes`;
   } else if (currentView === 'planned') {
     widgetTitle.textContent = 'Planificadas';
-    subtitle.textContent = pending === 1 ? '1 tarea pendiente' : `${pending} tareas pendientes`;
-  } else if (currentView === 'week' || currentView === 'timeday') {
-    widgetTitle.textContent = 'Inbox';
     subtitle.textContent = pending === 1 ? '1 tarea pendiente' : `${pending} tareas pendientes`;
   }
 }
@@ -750,7 +708,6 @@ function createTaskElement(task) {
     e.dataTransfer.effectAllowed = 'move';
 
     document.getElementById('calendar').classList.add('cal-drop-mode');
-    timeGridWidget.classList.add('tgv-drop-mode');
 
     // Ghost personalizado que sigue al cursor
     ghostOffsetX = e.offsetX;
@@ -796,7 +753,6 @@ function createTaskElement(task) {
     if (dragGhost) { dragGhost.remove(); dragGhost = null; }
 
     document.getElementById('calendar').classList.remove('cal-drop-mode');
-    timeGridWidget.classList.remove('tgv-drop-mode');
     document.querySelectorAll('.cal-cell.cal-drag-over').forEach(c => c.classList.remove('cal-drag-over'));
 
     dragSrcId = null;
@@ -820,8 +776,6 @@ function render() {
       inbox:   { title: 'Inbox vacío',            desc: 'Añade tu primera tarea con el campo de abajo' },
       planned: { title: 'Sin tareas planificadas', desc: 'Arrastra tareas al calendario para organizarlas' },
       day:     { title: 'Día despejado',           desc: 'No hay tareas para este día' },
-      week:    { title: 'Inbox vacío',             desc: 'Arrastra tareas al bloque de tiempo' },
-      timeday: { title: 'Inbox vacío',             desc: 'Arrastra tareas al bloque de tiempo' },
     };
 
     const { title, desc } = content[currentView] || content.day;
@@ -833,8 +787,8 @@ function render() {
     taskList.appendChild(empty);
   } else if (currentView === 'planned') {
     const todayStr = toISODate(new Date());
-    const overdue = visible.filter(t => t.date < todayStr && !t.completed && !t.scheduled_time);
-    const upcoming = visible.filter(t => t.date >= todayStr && !t.scheduled_time);
+    const overdue = visible.filter(t => t.date < todayStr && !t.completed);
+    const upcoming = visible.filter(t => t.date >= todayStr);
 
     if (overdue.length > 0) {
       const header = document.createElement('li');
@@ -943,7 +897,7 @@ function createAddRow() {
     btn.disabled = true;
     const created = await dbAdd({ text, date: currentView === 'day' ? selectedDate : null });
     if (!created) return;
-    tasks.push({ id: created.id, text: created.text, completed: created.completed, date: created.date, scheduled_time: created.scheduled_time || null });
+    tasks.push({ id: created.id, text: created.text, completed: created.completed, date: created.date });
     render();
     renderCalendar();
     requestAnimationFrame(() => {
@@ -1009,7 +963,7 @@ function renderUpcoming() {
   const todayStr = toISODate(new Date());
 
   const upcoming = tasks
-    .filter(t => t.date && t.date >= todayStr && !t.completed && !t.scheduled_time)
+    .filter(t => t.date && t.date >= todayStr && !t.completed)
     .sort((a, b) => a.date.localeCompare(b.date));
 
   container.innerHTML = '';
@@ -1052,429 +1006,6 @@ function renderUpcoming() {
 
     container.appendChild(section);
   });
-}
-
-// ===== TIME GRID — NAV LISTENERS =====
-document.getElementById('navWeek').addEventListener('click', e => {
-  e.preventDefault();
-  switchToWeekView();
-});
-
-document.getElementById('navTimeDay').addEventListener('click', e => {
-  e.preventDefault();
-  switchToTimeDayView(toISODate(new Date()));
-});
-
-// ===== TIME GRID — SHOW/HIDE =====
-function showTimeGrid() {
-  calendarWidgetEl.hidden = true;
-  eventsWidgetEl.hidden = true;
-  timeGridWidget.hidden = false;
-}
-
-function hideTimeGrid() {
-  calendarWidgetEl.hidden = false;
-  eventsWidgetEl.hidden = false;
-  timeGridWidget.hidden = true;
-}
-
-// ===== TIME GRID — SWITCH VIEWS =====
-function switchToWeekView() {
-  currentView = 'week';
-  showTimeGrid();
-  document.getElementById('navInbox').classList.remove('active');
-  document.getElementById('navToday').classList.remove('active');
-  document.getElementById('navPlanned').classList.remove('active');
-  document.getElementById('navWeek').classList.add('active');
-  document.getElementById('navTimeDay').classList.remove('active');
-  render();
-  renderCalendar();
-  renderTimeGrid();
-}
-
-function switchToTimeDayView(date) {
-  currentView = 'timeday';
-  timeDayDate = date;
-  showTimeGrid();
-  document.getElementById('navInbox').classList.remove('active');
-  document.getElementById('navToday').classList.remove('active');
-  document.getElementById('navPlanned').classList.remove('active');
-  document.getElementById('navWeek').classList.remove('active');
-  document.getElementById('navTimeDay').classList.add('active');
-  render();
-  renderCalendar();
-  renderTimeGrid();
-}
-
-// ===== TIME GRID — RENDER DISPATCHER =====
-function renderTimeGrid() {
-  if (currentView === 'week') {
-    renderWeekGrid();
-  } else if (currentView === 'timeday') {
-    renderTimeDayGrid();
-  }
-}
-
-// ===== TIME GRID — FORMAT WEEK LABEL =====
-function formatWeekLabel(weekStart) {
-  const monthNames = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-  const end = new Date(weekStart);
-  end.setDate(end.getDate() + 4); // Friday
-  const startDay = weekStart.getDate();
-  const endDay = end.getDate();
-  const endMonth = monthNames[end.getMonth()];
-  const endYear = end.getFullYear();
-  if (weekStart.getMonth() === end.getMonth()) {
-    return `${startDay}–${endDay} ${endMonth} ${endYear}`;
-  } else {
-    const startMonth = monthNames[weekStart.getMonth()];
-    return `${startDay} ${startMonth} – ${endDay} ${endMonth} ${endYear}`;
-  }
-}
-
-function formatTimeDayLabel(isoDate) {
-  const monthNames = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-  const dayNames = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
-  const [y, m, d] = isoDate.split('-').map(Number);
-  const date = new Date(y, m - 1, d);
-  const todayStr = toISODate(new Date());
-  const prefix = isoDate === todayStr ? 'Hoy, ' : '';
-  return `${prefix}${dayNames[date.getDay()]} ${d} ${monthNames[m - 1]} ${y}`;
-}
-
-// ===== TIME GRID — WEEK GRID =====
-function renderWeekGrid() {
-  const todayStr = toISODate(new Date());
-  const dayNames = ['Lun','Mar','Mié','Jue','Vie'];
-
-  // Build array of 5 dates (Mon–Fri)
-  const weekDates = [];
-  for (let i = 0; i < 5; i++) {
-    const d = new Date(currentWeekStart);
-    d.setDate(d.getDate() + i);
-    weekDates.push(toISODate(d));
-  }
-
-  timeGridWidget.innerHTML = '';
-
-  // Toolbar
-  const toolbar = document.createElement('div');
-  toolbar.className = 'tgv-toolbar';
-
-  const toggle = document.createElement('div');
-  toggle.className = 'tgv-toggle';
-
-  const weekBtn = document.createElement('button');
-  weekBtn.className = 'tgv-toggle-btn tgv-toggle-btn--active';
-  weekBtn.textContent = 'Semana';
-  weekBtn.addEventListener('click', () => switchToWeekView());
-
-  const dayBtn = document.createElement('button');
-  dayBtn.className = 'tgv-toggle-btn';
-  dayBtn.textContent = 'Día';
-  dayBtn.addEventListener('click', () => switchToTimeDayView(toISODate(new Date())));
-
-  toggle.append(weekBtn, dayBtn);
-
-  const nav = document.createElement('div');
-  nav.className = 'tgv-nav';
-
-  const prevBtn = document.createElement('button');
-  prevBtn.className = 'tgv-nav-btn';
-  prevBtn.innerHTML = '&#8249;';
-  prevBtn.addEventListener('click', () => {
-    currentWeekStart.setDate(currentWeekStart.getDate() - 7);
-    renderWeekGrid();
-  });
-
-  const navLabel = document.createElement('span');
-  navLabel.className = 'tgv-nav-label';
-  navLabel.textContent = formatWeekLabel(currentWeekStart);
-
-  const nextBtn = document.createElement('button');
-  nextBtn.className = 'tgv-nav-btn';
-  nextBtn.innerHTML = '&#8250;';
-  nextBtn.addEventListener('click', () => {
-    currentWeekStart.setDate(currentWeekStart.getDate() + 7);
-    renderWeekGrid();
-  });
-
-  nav.append(prevBtn, navLabel, nextBtn);
-  toolbar.append(toggle, nav);
-
-  // Grid
-  const grid = document.createElement('div');
-  grid.className = 'tgv-grid';
-
-  // Header row
-  const headerRow = document.createElement('div');
-  headerRow.className = 'tgv-header-row';
-
-  const corner = document.createElement('div');
-  corner.className = 'tgv-corner';
-  headerRow.appendChild(corner);
-
-  weekDates.forEach((isoDate, i) => {
-    const [, , d] = isoDate.split('-').map(Number);
-    const hdr = document.createElement('div');
-    hdr.className = 'tgv-day-hdr';
-    hdr.addEventListener('click', () => switchToTimeDayView(isoDate));
-
-    const nameEl = document.createElement('span');
-    nameEl.className = 'tgv-day-name';
-    nameEl.textContent = dayNames[i];
-
-    const numEl = document.createElement('span');
-    numEl.className = 'tgv-day-num' + (isoDate === todayStr ? ' today' : '');
-    numEl.textContent = d;
-
-    hdr.append(nameEl, numEl);
-    headerRow.appendChild(hdr);
-  });
-
-  // Body
-  const body = document.createElement('div');
-  body.className = 'tgv-body';
-
-  // Time labels column
-  const timeCol = document.createElement('div');
-  timeCol.className = 'tgv-time-col';
-  TIME_SLOTS.forEach(slot => {
-    const lbl = document.createElement('div');
-    lbl.className = 'tgv-time-lbl';
-    lbl.textContent = slot;
-    timeCol.appendChild(lbl);
-  });
-
-  // Slot columns
-  const slotsRow = document.createElement('div');
-  slotsRow.className = 'tgv-slots';
-
-  weekDates.forEach(isoDate => {
-    const col = document.createElement('div');
-    col.className = 'tgv-slot-col';
-
-    TIME_SLOTS.forEach(time => {
-      const block = createTimeBlock(isoDate, time);
-      col.appendChild(block);
-    });
-
-    slotsRow.appendChild(col);
-  });
-
-  body.append(timeCol, slotsRow);
-  grid.append(headerRow, body);
-  timeGridWidget.append(toolbar, grid);
-}
-
-// ===== TIME GRID — DAY GRID =====
-function renderTimeDayGrid() {
-  const todayStr = toISODate(new Date());
-  const isoDate = timeDayDate;
-
-  timeGridWidget.innerHTML = '';
-
-  // Toolbar
-  const toolbar = document.createElement('div');
-  toolbar.className = 'tgv-toolbar';
-
-  const toggle = document.createElement('div');
-  toggle.className = 'tgv-toggle';
-
-  const weekBtn = document.createElement('button');
-  weekBtn.className = 'tgv-toggle-btn';
-  weekBtn.textContent = 'Semana';
-  weekBtn.addEventListener('click', () => switchToWeekView());
-
-  const dayBtnEl = document.createElement('button');
-  dayBtnEl.className = 'tgv-toggle-btn tgv-toggle-btn--active';
-  dayBtnEl.textContent = 'Día';
-  dayBtnEl.addEventListener('click', () => switchToTimeDayView(toISODate(new Date())));
-
-  toggle.append(weekBtn, dayBtnEl);
-
-  const nav = document.createElement('div');
-  nav.className = 'tgv-nav';
-
-  const prevBtn = document.createElement('button');
-  prevBtn.className = 'tgv-nav-btn';
-  prevBtn.innerHTML = '&#8249;';
-  prevBtn.addEventListener('click', () => {
-    const [y, m, d] = timeDayDate.split('-').map(Number);
-    const prev = new Date(y, m - 1, d - 1);
-    switchToTimeDayView(toISODate(prev));
-  });
-
-  const navLabel = document.createElement('span');
-  navLabel.className = 'tgv-nav-label';
-  navLabel.textContent = formatTimeDayLabel(isoDate);
-  navLabel.style.minWidth = '180px';
-
-  const nextBtn = document.createElement('button');
-  nextBtn.className = 'tgv-nav-btn';
-  nextBtn.innerHTML = '&#8250;';
-  nextBtn.addEventListener('click', () => {
-    const [y, m, d] = timeDayDate.split('-').map(Number);
-    const next = new Date(y, m - 1, d + 1);
-    switchToTimeDayView(toISODate(next));
-  });
-
-  nav.append(prevBtn, navLabel, nextBtn);
-  toolbar.append(toggle, nav);
-
-  // Grid
-  const grid = document.createElement('div');
-  grid.className = 'tgv-grid';
-
-  // Header row (single day)
-  const headerRow = document.createElement('div');
-  headerRow.className = 'tgv-header-row';
-
-  const corner = document.createElement('div');
-  corner.className = 'tgv-corner';
-  headerRow.appendChild(corner);
-
-  const [, , dayNum] = isoDate.split('-').map(Number);
-  const hdr = document.createElement('div');
-  hdr.className = 'tgv-day-hdr';
-
-  const dayNames = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
-  const [hy, hm, hd] = isoDate.split('-').map(Number);
-  const dateObj = new Date(hy, hm - 1, hd);
-
-  const nameEl = document.createElement('span');
-  nameEl.className = 'tgv-day-name';
-  nameEl.textContent = dayNames[dateObj.getDay()];
-
-  const numEl = document.createElement('span');
-  numEl.className = 'tgv-day-num' + (isoDate === todayStr ? ' today' : '');
-  numEl.textContent = dayNum;
-
-  hdr.append(nameEl, numEl);
-  headerRow.appendChild(hdr);
-
-  // Body
-  const body = document.createElement('div');
-  body.className = 'tgv-body';
-
-  const timeCol = document.createElement('div');
-  timeCol.className = 'tgv-time-col';
-  TIME_SLOTS.forEach(slot => {
-    const lbl = document.createElement('div');
-    lbl.className = 'tgv-time-lbl';
-    lbl.textContent = slot;
-    timeCol.appendChild(lbl);
-  });
-
-  const slotsRow = document.createElement('div');
-  slotsRow.className = 'tgv-slots';
-
-  const col = document.createElement('div');
-  col.className = 'tgv-slot-col';
-
-  TIME_SLOTS.forEach(time => {
-    const block = createTimeBlock(isoDate, time);
-    col.appendChild(block);
-  });
-
-  slotsRow.appendChild(col);
-  body.append(timeCol, slotsRow);
-  grid.append(headerRow, body);
-  timeGridWidget.append(toolbar, grid);
-}
-
-// ===== TIME GRID — BLOCK FACTORY =====
-function createTimeBlock(isoDate, time) {
-  const block = document.createElement('div');
-  block.className = 'tgv-block';
-  block.dataset.date = isoDate;
-  block.dataset.time = time;
-
-  // Render any tasks already in this slot
-  tasks.filter(t => t.date === isoDate && t.scheduled_time === time).forEach(task => {
-    block.appendChild(createTimeBlockCard(task));
-  });
-
-  // Drag-over highlight
-  block.addEventListener('dragover', e => {
-    if (dragSrcId === null) return;
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-    block.classList.add('tgv-block--hover');
-  });
-
-  block.addEventListener('dragleave', e => {
-    if (!block.contains(e.relatedTarget)) {
-      block.classList.remove('tgv-block--hover');
-    }
-  });
-
-  block.addEventListener('drop', e => {
-    e.preventDefault();
-    block.classList.remove('tgv-block--hover');
-    if (dragSrcId === null) return;
-    const task = tasks.find(t => t.id === dragSrcId);
-    if (task) {
-      task.date = isoDate;
-      task.scheduled_time = time;
-      droppedOnCalendar = true;
-      dbUpdate(task.id, { date: isoDate, scheduled_time: time });
-      render();
-      renderCalendar();
-      renderTimeGrid();
-    }
-    dragSrcId = null;
-  });
-
-  return block;
-}
-
-// ===== TIME GRID — TASK CARD =====
-function createTimeBlockCard(task) {
-  const card = document.createElement('div');
-  card.className = 'tgv-task-card' + (task.completed ? ' completed' : '');
-  card.draggable = true;
-
-  const textSpan = document.createElement('span');
-  textSpan.className = 'tgv-task-text';
-  textSpan.textContent = task.text;
-
-  const unscheduleBtn = document.createElement('button');
-  unscheduleBtn.className = 'tgv-unschedule-btn';
-  unscheduleBtn.title = 'Quitar del bloque';
-  unscheduleBtn.innerHTML = '&times;';
-  unscheduleBtn.addEventListener('click', e => {
-    e.stopPropagation();
-    task.scheduled_time = null;
-    dbUpdate(task.id, { scheduled_time: null });
-    render();
-    renderCalendar();
-    renderTimeGrid();
-  });
-
-  card.append(textSpan, unscheduleBtn);
-
-  card.addEventListener('dragstart', e => {
-    dragSrcId = task.id;
-    droppedOnCalendar = false;
-    e.dataTransfer.effectAllowed = 'move';
-    timeGridWidget.classList.add('tgv-drop-mode');
-    card.classList.add('tgv-card-dragging');
-
-    const blank = document.createElement('div');
-    blank.style.cssText = 'width:1px;height:1px;opacity:0.01;position:fixed;top:-10px;left:-10px';
-    document.body.appendChild(blank);
-    e.dataTransfer.setDragImage(blank, 0, 0);
-    setTimeout(() => document.body.removeChild(blank), 0);
-  });
-
-  card.addEventListener('dragend', () => {
-    card.classList.remove('tgv-card-dragging');
-    timeGridWidget.classList.remove('tgv-drop-mode');
-    dragSrcId = null;
-  });
-
-  return card;
 }
 
 // Init — tasks load via auth.js → loadTasks() after sign-in
